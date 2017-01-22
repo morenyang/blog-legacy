@@ -1,0 +1,52 @@
+@import "../public/library";
+
+main.post {
+  max-width: @main-content-width;
+  margin: 0 auto;
+  padding: @gutter;
+
+  article {
+    padding-top: @article-gutter;
+    line-height: @article-line-height;
+  }
+
+  .article-entry {
+    margin-top: 5 * @gutter;
+    color: #333;
+    h2 {
+      margin: 60px 0 20px;
+      font-size: 160%;
+      border-bottom: 2px solid #dbdbdb;
+    }
+    h3, h4, h5 {
+      margin: 30px 0 15px;
+    }
+    a {
+      color: @anchor-color;
+    }
+  }
+
+  .article-title {
+    margin: 0;
+    font-weight: 400;
+    text-align: center;
+    text-transform: capitalize;
+    padding-top: @article-gutter * 2/3;
+    font-size: 24px;
+    @media ( min-width: 768px) {
+      font-size: 32px;
+    }
+  }
+
+  .article-date {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: @article-date-color;
+  }
+
+  .article-comment {
+    margin-top: 6 * @gutter;
+  }
+
+}
