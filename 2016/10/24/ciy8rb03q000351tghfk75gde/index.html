@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>网页滚动事件的简单利用 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="http://obtkzjq1l.bkt.clouddn.com/static/img/favicon.png">
+    <link rel="stylesheet" href="/blog/css/style.css">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="layout">
+        <div class="content ">
+            
+            
+            <a href="/blog/.">Home</a>
+            
+            
+            
+            <a href="/blog/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+</nav>
+
+<main class="post">
+    <article>
+    <h1 class="article-title">
+        <a href="/blog/2016/10/24/ciy8rb03q000351tghfk75gde/">网页滚动事件的简单利用</a>
+    </h1>
+
+    <section class="article-meta">
+        <p class="article-date">October 24 2016</p>
+    </section>
+
+    <section class="article-entry">
+        <p>我们在写网页的时候常常会利用到滚动事件，例如当网页下滑到某个位置的时候开始播放视频，或者是给网页在下滑到某个位置的时候自动在右下角添加一个返回顶部的标签等。</p>
+<h3 id="监听滚动事件"><a href="#监听滚动事件" class="headerlink" title="监听滚动事件"></a>监听滚动事件</h3><p>首先我们要先明白如何检测网页的滚动事件。这里有一段简单的代码可以帮助你判断和输出网页的滚动情况:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">window</span>.scrollY);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>打开一个可以上下滚动的网页，把上面的代码输入到<strong>浏览器的控制台</strong>中，滚动页面时即可看到当前屏幕滚动的高度。</p>
+<p><em>当然如果你习惯使用jQuery的话也可以这么写</em><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$(<span class="built_in">window</span>).scroll(<span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</div><div class="line">  <span class="built_in">console</span>.log($(<span class="keyword">this</span>).scrollTop());</div><div class="line"></div><div class="line">  <span class="comment">// 以上输出代码也可以换成下面这句，效果一样</span></div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">document</span>.body.scrollTop);</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<h3 id="为网页添加返回顶部的标签"><a href="#为网页添加返回顶部的标签" class="headerlink" title="为网页添加返回顶部的标签"></a>为网页添加返回顶部的标签</h3><p>知道了如何监听滚动事件以后，我们就可以开始利用它了。这里我们就以利用滚动事件来实现返回顶部的标签</p>
+<p>首先我们要在网页中加入一个div标签，里面放置“返回顶部”四个字，并为它设置样式：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- 样式 --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span><span class="undefined"></span></div><div class="line">#scroll_top&#123;</div><div class="line">  position: fixed;</div><div class="line">  bottom: 80px;</div><div class="line">  right: 20px;</div><div class="line">  display: none;</div><div class="line">&#125;</div><div class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line"></div><div class="line"><span class="comment">&lt;!-- 标签 --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"scroll_top"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>返回顶部<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>然后我们再利用JavaScript的滚动事件让页面在下滑到一定高度后显示返回顶部的标签：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="javascript"></span></div><div class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> scroll_top = <span class="built_in">document</span>.getElementById(<span class="string">'scroll_top'</span>);</div><div class="line">  <span class="keyword">if</span>(<span class="built_in">window</span>.scrollY &gt; <span class="number">300</span>)&#123;</div><div class="line">    scroll_top.style.display = <span class="string">"inline"</span>;</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    scroll_top.style.display = <span class="string">"none"</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>完整的示例代码如下<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span><span class="undefined"></span></div><div class="line">    #scroll_top &#123;</div><div class="line">      position: fixed;</div><div class="line">      bottom: 80px;</div><div class="line">      right: 20px;</div><div class="line">      display: none;</div><div class="line">    &#125;</div><div class="line">  <span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"placeHolder"</span> <span class="attr">style</span>=<span class="string">"height: 300vh"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"scroll_top"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>返回顶部<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"></div><div class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="javascript"></span></div><div class="line">    <span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">      <span class="keyword">var</span> scroll_top = <span class="built_in">document</span>.getElementById(<span class="string">'scroll_top'</span>);</div><div class="line">      <span class="keyword">if</span>(<span class="built_in">window</span>.scrollY &gt; <span class="number">300</span>)&#123;</div><div class="line">        scroll_top.style.display = <span class="string">"inline"</span>;</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        scroll_top.style.display = <span class="string">"none"</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
+
+    </section>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
