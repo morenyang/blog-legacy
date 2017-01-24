@@ -31,10 +31,7 @@
 
 <main class="page">
     <div>
-        <head>
-    <title>Page Not Found - Moren's</title>
-</head>
-<body class="err-page">
+        <body class="err-page">
     <div class="container">
         <div class="main-layout">
             <div class="brand"><a href="/blog/" class="brand-text">Moren's Blog</a></div>
@@ -50,6 +47,7 @@
         <h2 class="hidden"></h2><pre id="error_stack" class="hidden"></pre></div>
     <script type="text/javascript">
         window.onload = function(){
+            document.title = "Page Not Found - Moren's";
             document.getElementById('url').innerHTML = window.location.pathname;
         }
     </script>
