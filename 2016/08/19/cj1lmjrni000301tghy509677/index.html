@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>为WebStorm配置less自动编译环境 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="http://yangteng.me/static/favicon.png">
+    <link rel="stylesheet" href="/blog/css/style.css">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="layout">
+        <div class="content ">
+            
+            
+            <a href="/blog/.">Home</a>
+            
+            
+            
+            <a href="/blog/archives">Archive</a>
+            
+            
+            
+            <a href="http://yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+</nav>
+
+<main class="post">
+    <article>
+    <h1 class="article-title">
+        <a href="/blog/2016/08/19/cj1lmjrni000301tghy509677/">为WebStorm配置less自动编译环境</a>
+    </h1>
+
+    <section class="article-meta">
+        <p class="article-date">August 19 2016</p>
+    </section>
+
+    <section class="article-entry">
+        <h2 id="Less"><a href="#Less" class="headerlink" title="Less"></a>Less</h2><p><a href="http://lesscss.org/" target="_blank" rel="external">less</a>是一个比较流行的前端样式语言。相比<a href="http://sass-lang.com/" target="_blank" rel="external">sass/scss</a>，less的语法更为接近原声的css，又相对简单，比较适合初学者上手。因此，你可以平滑地由css迁移到less。当然less也有一些不足，例如可编程的功能不够，继承比较麻烦等。著名的Twitter Bootstrap就是用less作为底层语言编译的<del><em>，不过据说bootstrap 4.0开始已经换做sass作为底层语言了</em></del>。</p>
+<p>如果想要学习less，可以参考：<a href="http://lesscss.cn/" target="_blank" rel="external">Less中文网</a></p>
+<h3 id="安装less编译器"><a href="#安装less编译器" class="headerlink" title="安装less编译器"></a>安装less编译器</h3><p>我们使用npm来安装less编译器。在命令行中输入以下命令即可(可能需要<code>sudo</code>)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install -g less</div></pre></td></tr></table></figure>
+<p>安装完后，npm会告诉你lessc的安装位置，例如<code>/usr/local/bin/lessc</code>或<code>C:\Users\Username\Appdata\Roaming\npm\lessc</code>。<strong>你最好先记下这个地址。</strong></p>
+<h4 id="编译less-（这一段不重要）"><a href="#编译less-（这一段不重要）" class="headerlink" title="编译less （这一段不重要）"></a>编译less <em><del>（这一段不重要）</del></em></h4><p><em>如果你要通过命令行编译less为css的话，直接输入下面这行命令即可：</em><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">lessc fileName.less fileName.css</div></pre></td></tr></table></figure></p>
+<p><em>这里还有一个<a href="https://github.com/less/less-plugin-clean-css" target="_blank" rel="external">clean-css插件</a>，可以帮你直接编译出压缩后的css。你可以通过命令<code>npm install -g less-plugin-clean-css</code>来安装。使用这个插件，你只需要这样输入命令：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">lessc --clean-css fileName.less fileName.min.css</div></pre></td></tr></table></figure>
+<h2 id="WebStorm"><a href="#WebStorm" class="headerlink" title="WebStorm"></a>WebStorm</h2><p><a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="external">WebStorm</a>是一个比较牛×的Web前端IDE，特别是在JavaScript的编译中。WS提供了丰富的插件、定制化功能和文件支持。<del>缺点嘛，就是太贵太吃资源。</del>在这里我们利用WebStorm自带的<strong>File Watcher</strong>工具来实现less的自动编译。</p>
+<p>首先，我们用WebStorm打开我们的项目文件夹，然后新建一个.less文件。</p>
+<p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20160820webstorm-less1.png" alt=""></p>
+<p>打开这个less文件，屏幕上方就会出现提示：</p>
+<blockquote>
+<p>File watcher ‘Less’ is available for this file.</p>
+</blockquote>
+<p>之类的话，然后我们点击右边的<strong>Add Watcher</strong>即可进入配置界面。</p>
+<p>如果没有的话，我们直接在任务栏中选择</p>
+<blockquote>
+<p>WebStorm &gt; Preference &gt; Tools &gt; File Watchers</p>
+<p>（Windows平台应该从 File &gt; Settings 下进入）</p>
+</blockquote>
+<p>然后点击下方或是右边的加号来添加less编译器。</p>
+<p>一般情况下来说，WebStorm会自动检测你电脑中是否已经安装了lessc并获取它的安装位置，然后自动帮你配置。如果没有，参考下面的配置即可：</p>
+<h4 id="mac"><a href="#mac" class="headerlink" title="mac"></a>mac</h4><p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20160820webstorm-less2.png" alt=""></p>
+<h4 id="windows"><a href="#windows" class="headerlink" title="windows"></a>windows</h4><p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20160820webstorm-less3.png" alt=""></p>
+<p>解释一下几个可能会更改的选项，</p>
+<ul>
+<li>File type： 你需要处理的文件类型</li>
+<li>Program： 需要调用的文件处理器（如lessc、node等）</li>
+<li>Arguments： 编译参数（这里直接是文件名）</li>
+<li>Output paths to refresh： 输出文件夹和文件名</li>
+</ul>
+<p><strong>Arguments</strong> 项目中可以编译入参数，例如：如果要直接编译压缩后的.css文件，则可以在Arguments中输入：<code>--clean-css $FileName$</code>。</p>
+<p><strong>Output paths to refresh</strong> 项目中，可以在文件名前填入<code>$FileParentDir$/</code>，指向当前文件的上层目录。</p>
+<h4 id="via-NodeJS-这段不重要"><a href="#via-NodeJS-这段不重要" class="headerlink" title="via NodeJS 这段不重要"></a>via NodeJS <del>这段不重要</del></h4><p><em>我们也可以通过在File Watcher中调用nodejs来编译less。</em></p>
+<p><em>具体配置如下：</em><br><img src="http://morensblog-static.tengtengtengteng.com/img/post/20160820webstorm-less5.png" alt=""></p>
+<p><em>其中，Program中填入的是nodejs的安装位置，而Arguments中填入的是 <strong>lessc的位置（一般在默认的npm下载目录 <code>node_modules/less/bin</code> 中) + 参数 </strong></em></p>
+<p>另外要说一下的是，WebStorm中的内容是自动保存的。当你输入或删除代码时，File Watcher也会实时帮助你编译。</p>
+<p>保存设置后，就可以编辑你的less文件，并看到编译后的css文件了。</p>
+
+    </section>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
