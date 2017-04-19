@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>简单介绍Flex布局 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="http://yangteng.me/static/favicon.png">
+    <link rel="stylesheet" href="/blog/css/style.css">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="layout">
+        <div class="content ">
+            
+            
+            <a href="/blog/.">Home</a>
+            
+            
+            
+            <a href="/blog/archives">Archive</a>
+            
+            
+            
+            <a href="http://yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+</nav>
+
+<main class="post">
+    <article>
+    <h1 class="article-title">
+        <a href="/blog/2017/04/19/cj1of6foy000c8ptgsmjsz33q/">简单介绍Flex布局</a>
+    </h1>
+
+    <section class="article-meta">
+        <p class="article-date">April 19 2017</p>
+    </section>
+
+    <section class="article-entry">
+        <p>平时我们在网页中使用布局的方法大多基于盒模型，也就是W3C的<code>CSS box model</code>。我们会使用<code>display</code>属性、<code>position</code>属性、<code>float</code>属性，加上<code>margin</code>和<code>padding</code>属性来完成排版。但是这往往是一项较为繁琐的工作，例如垂直居中就比较难实现，或是你想在输入框右边加入一个按钮时，宽度的计算常常让人绝望到崩溃。</p>
+<p>然而如果使用Flex布局方式，就可以简便、快捷地实现各种页面的布局。并且FlexBox的兼容性较好，可以说是使用CSS进行网页排版的利器。</p>
+<p>如果不想看理论，可以直接跳到<a href="#examples">例子</a></p>
+<p><em>本文参考自 <a href="http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html" target="_blank" rel="external">Flex 布局教程：语法篇</a>、<a href="http://www.ruanyifeng.com/blog/2015/07/flex-examples.html" target="_blank" rel="external">Flex 布局教程：实例篇</a> 、官方文档 <a href="https://drafts.csswg.org/css-flexbox/" target="_blank" rel="external">CSS Flexible Box Layout Module Level 1</a>、<a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="external">A Complete Guide to Flexbox</a>、以及<a href="https://hufan-akari.github.io/solved-by-flexbox/" target="_blank" rel="external">Solved by Flexbox</a></em></p>
+<h2 id="Flex布局的框模型"><a href="#Flex布局的框模型" class="headerlink" title="Flex布局的框模型"></a>Flex布局的框模型</h2><p>首先要说的是，我们在<code>display</code>属性中声明一个容器flex布局：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/* 行内元素使用inline-flex*/</span></div><div class="line"><span class="selector-class">.layout-inline</span> &#123;</div><div class="line">    <span class="attribute">display</span>: inline-flex</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>简单的说，flex布局容器(<strong>flex container</strong>)中的元素(<strong>flex item</strong>)是基于两条轴线的，横轴为主轴(mian axis)，纵轴为交叉轴（cross axis)。元素默认沿主轴排列。</p>
+<p><img src="https://drafts.csswg.org/css-flexbox/images/flex-direction-terms.svg" alt=""></p>
+<h2 id="Flex-Container-的属性"><a href="#Flex-Container-的属性" class="headerlink" title="Flex Container 的属性"></a>Flex Container 的属性</h2><p>容器主要有几个属性，我们先把常用的放在前面讲。</p>
+<h3 id="justify-content"><a href="#justify-content" class="headerlink" title="justify-content"></a>justify-content</h3><p><code>justify-content</code>属性定义了项目在主轴上的对齐方式。有这几个可选项：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">justify-content</span>: flex-start | flex-end | center | space-between | space-around  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>flex-start : (default) 左对齐</li>
+<li>flex-end : 右对齐</li>
+<li>center : 居中</li>
+<li>space-between : 两端对齐，项目之间的间隔都相等。</li>
+<li>space-around : 每个项目两侧的间隔相等。所以，项目之间的间隔比项目与边框的间隔大一倍。</li>
+</ul>
+<p>效果如下图所示：<br><img src="https://drafts.csswg.org/css-flexbox/images/flex-pack.svg" alt=""></p>
+<h3 id="align-items"><a href="#align-items" class="headerlink" title="align-items"></a>align-items</h3><p><code>align-items</code>属性定义了项目在交叉轴上的对齐方式。有这几个可选项：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">align-items</span>: flex-start | flex-end | center | baseline | stretch </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>flex-start : 交叉轴的起点对齐。</li>
+<li>flex-end : 交叉轴的终点对齐。</li>
+<li>center : 交叉轴的中点对齐。</li>
+<li>baseline : 项目的第一行文字的基线对齐。</li>
+<li>stretch : (default) 如果项目未设置高度或设为auto，将占满整个容器的高度。</li>
+</ul>
+<p>效果如下图所示：<br><img src="https://drafts.csswg.org/css-flexbox/images/flex-align.svg" alt=""></p>
+<h3 id="align-content"><a href="#align-content" class="headerlink" title="align-content"></a>align-content</h3><p><code>align-content</code>属性定义了项目在存在<strong>多根轴线</strong>时的对齐方式。当只有一根轴线时，该属性不起作用。有这几个可选项：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">align-content</span>: flex-start | flex-end | center | space-between | space-around | stretch</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>flex-start : 与交叉轴的起点对齐。</li>
+<li>flex-end : 与交叉轴的终点对齐。</li>
+<li>center : 与交叉轴的中点对齐。</li>
+<li>space-between : 与交叉轴两端对齐，轴线之间的间隔平均分布。</li>
+<li>space-around : 每根轴线两侧的间隔都相等。所以，轴线之间的间隔比轴线与边框的间隔大一倍。</li>
+<li>stretch : (default) 轴线占满整个交叉轴。</li>
+</ul>
+<p>效果如下图所示：<br><img src="https://drafts.csswg.org/css-flexbox/images/align-content-example.svg" alt=""></p>
+<h3 id="flex-direction"><a href="#flex-direction" class="headerlink" title="flex-direction"></a>flex-direction</h3><p><code>flex-direction</code>属性通过设置flex容器主轴的方向来指定flex项目排列在flex容器中的方式。有这几个可选项：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">flex-direction</span>: row | row-reverse | column | column-reverse</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>row : (defautl) 主轴为水平方向，由左到右。</li>
+<li>row-reverse : 主轴为水平方向，由右到左。</li>
+<li>column : 主轴为垂直方向，由上到下。</li>
+<li>column-reverse : 主轴为垂直方向，由下到上。</li>
+</ul>
+<p>效果如下图所示，分别为： <code>row</code> <code>row-reverse</code> <code>column</code> <code>column-reverse</code><br><img src="https://css-tricks.com/wp-content/uploads/2013/04/flex-direction2.svg" alt=""></p>
+<h3 id="flex-wrap"><a href="#flex-wrap" class="headerlink" title="flex-wrap"></a>flex-wrap</h3><p><code>flex-wrap</code>属性控制Flex容器的换行规则。有这几个可选项：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">flex-warp</span>: nowrap | wrap | wrap-reverse</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>nowrap : (default) 不换行</li>
+<li>wrap : 换行，第一行在上方</li>
+<li>wrap-reverse : 换行，第一行在下方</li>
+</ul>
+<p>效果如下图所示 (<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap" target="_blank" rel="external">示例地址</a>)<br><img src="http://morensblog-static.tengtengtengteng.com/img/post/20170419css-flex-box-1.png" alt=""></p>
+<h3 id="flex-flow"><a href="#flex-flow" class="headerlink" title="flex-flow"></a>flex-flow</h3><p><code>flex-flow</code>属性是<code>flex-direction</code> 和 <code>flex-wrap</code>属性的简写方式。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.layout</span> &#123;</div><div class="line">    <span class="attribute">display</span>: flex;</div><div class="line">    <span class="attribute">flex-wrap</span>: &lt;flex-direction&gt; || &lt;flex-wrap&gt;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>flex-flow</code>的默认属性为： <code>flex-wrap: row nowrap</code></p>
+<h2 id="Flex-Items-的属性"><a href="#Flex-Items-的属性" class="headerlink" title="Flex Items 的属性"></a>Flex Items 的属性</h2><p>Flex 元素中的属性，只影响flex容器中的某单个元素。</p>
+<h3 id="order"><a href="#order" class="headerlink" title="order"></a>order</h3><p><code>order</code>定义项目排列的顺序，可以理解成优先级。数字越小，排列越靠前，默认值为0。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.item</span> &#123;</div><div class="line">   <span class="attribute">order</span>: &lt;Integer&gt;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>效果如下图所示：<br><img src="https://css-tricks.com/wp-content/uploads/2013/04/order-2.svg" alt=""></p>
+<p><a href="https://drafts.csswg.org/css-flexbox/#order-property" target="_blank" rel="external">这里有一个小tips</a>， 你可以使用flex布局来创建一个简单的选项卡，并且将当前选中的选项固定在最前<br><img src="https://drafts.csswg.org/css-flexbox/images/flex-order-example.png" alt=""></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.tabs</span> &#123;</div><div class="line">  <span class="attribute">display</span>: flex;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="selector-class">.tabs</span> &gt; <span class="selector-class">.current</span> &#123;</div><div class="line">  <span class="attribute">order</span>: -<span class="number">1</span>; <span class="comment">/* Lower than the default of 0 */</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="align-self"><a href="#align-self" class="headerlink" title="align-self"></a>align-self</h3><p><code>align-self</code>属性允许元素定义与其他元素不同的对齐方式。其属性与Flex Container 中的<code>align-items</code>基本一致。其中<code>auto</code>值为继承父容器的<code>align-items</code>属性，如果没有父元素，则为<code>stretch</code>。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.flex-item</span> &#123;</div><div class="line">  <span class="attribute">align-self</span>: auto | flex-start | flex-end | center | baseline | stretch </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>具体示例可以参考<a href="https://css-tricks.com/almanac/properties/a/align-self/" target="_blank" rel="external">这里</a></p>
+<p>效果如下图所以：<br><img src="https://css-tricks.com/wp-content/uploads/2014/05/align-self.svg" alt=""></p>
+<h3 id="flex"><a href="#flex" class="headerlink" title="flex"></a>flex</h3><p><em><code>flex</code>属性其实是由<code>flex-grow</code>、<code>flex-shrink</code>、<code>flex-basis</code>属性组组成的，其中后两者是可选的，默认值为 <code>flex: 0 1 auto</code>。这三个属性可以单独制定，但是推荐使用<code>flex</code>属性。</em></p>
+<p><code>flex</code>属性可以指定组件的灵活长度，即由浏览器通过计算推算出其组件的具体长度。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.item</span> &#123;</div><div class="line">    <span class="attribute">flex</span>: none | [ &lt;<span class="string">'flex-grow'</span>&gt; &lt;<span class="string">'flex-shrink'</span>&gt;? || &lt;<span class="string">'flex-basis'</span>&gt; ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>先来说一下三个子属性</p>
+<h4 id="flex-grow"><a href="#flex-grow" class="headerlink" title="flex-grow"></a>flex-grow</h4><p><code>flex-grow</code>属性定义元素的放大比例，默认为0，即如果存在剩余空间，也不放大。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.item</span> &#123;</div><div class="line">      <span class="attribute">flex-grow</span>: &lt;number&gt;; <span class="comment">/* default 0 */</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><a href="https://css-tricks.com/almanac/properties/f/flex-grow/" target="_blank" rel="external">详细说明可以参考</a><br><a href="http://codepen.io/HugoGiraudel/pen/9a9ad8fb040f5efaf4e749b49cae7281" target="_blank" rel="external">这里有一个详细的例子</a></p>
+<p>例如，如果所有项目的<code>flex-grow</code>属性都为<code>1</code>（如下图上方），则它们将等分剩余空间（如果有的话）。如果一个项目的<code>flex-grow</code>属性为<code>2</code>（如下图下方），其他项目都为<code>1</code>，则前者占据的剩余空间将比其他项多一倍。<br><img src="https://css-tricks.com/wp-content/uploads/2014/05/flex-grow.svg" alt=""></p>
+<h4 id="flex-shrink"><a href="#flex-shrink" class="headerlink" title="flex-shrink"></a>flex-shrink</h4><p>与<code>flex-grow</code>相反，<code>flex-shrink</code>属性定义了元素的缩小比例，默认为1，负数无效。如果空间不足，该项目会缩小。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.item</span> &#123;</div><div class="line">    <span class="attribute">flex-shrink</span>: &lt;number&gt;; <span class="comment">/* default 1 */</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><a href="https://css-tricks.com/almanac/properties/f/flex-shrink/" target="_blank" rel="external">详细说明可以参考</a><br><a href="http://codepen.io/HugoGiraudel/pen/95aeaf737efab9c2c1c90ea157c091c6" target="_blank" rel="external">具体例子</a></p>
+<p>举一个例子：如果你不想某个元素在空间不足的时候被缩小，你可以将它的<code>flex-shrink</code>属性设置为0。<br><img src="http://www.ruanyifeng.com/blogimg/asset/2015/bg2015071015.jpg" alt=""></p>
+<h4 id="flex-basis"><a href="#flex-basis" class="headerlink" title="flex-basis"></a>flex-basis</h4><p><code>flex</code>属性制定了一个元素的基准长度，即指定浏览器推算当前元素长度前，元素占据主轴的空间。浏览器根据这个属性，计算主轴是否有多余空间。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.item</span> &#123;</div><div class="line">    <span class="attribute">flex-basis</span>: &lt;length&gt; | auto; <span class="comment">/* default auto */</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>示例如下图：<br><img src="https://drafts.csswg.org/css-flexbox/images/rel-vs-abs-flex.svg" alt=""></p>
+<h4 id="flex-1"><a href="#flex-1" class="headerlink" title="flex"></a>flex</h4><p>说回到<code>flex</code>。<code>flex</code>属性有以下这几个常用值。<br>详细的介绍和例子可以参考 <a href="https://drafts.csswg.org/css-flexbox/#flex-common" target="_blank" rel="external">Basic Values of flex</a> 和 <a href="https://css-tricks.com/almanac/properties/f/flex/" target="_blank" rel="external">flex | css tricks</a></p>
+<h5 id="flex-0-1-auto"><a href="#flex-0-1-auto" class="headerlink" title="flex: 0 1 auto"></a><code>flex: 0 1 auto</code></h5><p>这个是<code>flex</code>属性的默认值，也等同于<code>flex: initial</code>。它会根据其宽度/高度属性来缩放元素大小。</p>
+<h5 id="flex-auto"><a href="#flex-auto" class="headerlink" title="flex: auto"></a><code>flex: auto</code></h5><p>等同于<code>flex: 1 1 auto</code>。元素宽度会完全由浏览器推算，从而占据使这个元素整个主轴的剩余空间。</p>
+<h5 id="flex-none"><a href="#flex-none" class="headerlink" title="flex: none"></a><code>flex: none</code></h5><p>等同于<code>flex: 0 0 auto</code>。元素的高度和宽度会根据属性来渲染，与<code>flex: initial</code>类似，但不会被缩小。</p>
+<h5 id="flex-lt-positive-number-gt"><a href="#flex-lt-positive-number-gt" class="headerlink" title="flex: &lt;positive-number&gt;"></a><strong><code>flex: &lt;positive-number&gt;</code></strong></h5><p>等同于<code>flex:  &lt;positive-number&gt; 1 0%</code>。这允许元素可以占据容器的剩余空间，而且不会被缩小。这个属性最为常用。</p>
+<p><br><br></p>
+
+<p><a name="examples"></a></p>
+<h1 id="常用例子"><a href="#常用例子" class="headerlink" title="常用例子"></a>常用例子</h1><h2 id="栅格系统"><a href="#栅格系统" class="headerlink" title="栅格系统"></a>栅格系统</h2><blockquote>
+<p><em>来自<a href="https://hufan-akari.github.io/solved-by-flexbox/" target="_blank" rel="external">Solved by Flexbox</a></em></p>
+</blockquote>
+<p><link href="./resources/css-flex-box-demo.css" type="text/css" rel="stylesheet"></p>
+<div class="example-gird-demo"><div class="Grid Grid--gutters u-textCenter"><div class="Grid-cell"><div class="Demo">1/2</div></div><div class="Grid-cell"><div class="Demo">1/2</div></div></div><br><div class="Grid Grid--gutters u-textCenter"><div class="Grid-cell"><div class="Demo">1/3</div></div><div class="Grid-cell"><div class="Demo">1/3</div></div><div class="Grid-cell"><div class="Demo">1/3</div></div></div><br><div class="Grid Grid--gutters u-textCenter"><div class="Grid-cell"><div class="Demo">1/4</div></div><div class="Grid-cell"><div class="Demo">1/4</div></div><div class="Grid-cell"><div class="Demo">1/4</div></div><div class="Grid-cell"><div class="Demo">1/4</div></div></div><br><div class="Grid Grid--gutters Grid--flexCells"><div class="Grid-cell"><div class="Demo">高度撑满，即使内容没有填满空间。</div></div><div class="Grid-cell"><div class="Demo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum mollis velit non gravida venenatis. Praesent consequat lectus purus, ut scelerisque velit condimentum eu. Maecenas sagittis ante ut turpis varius interdum. Quisque tellus ipsum, eleifend non ipsum id, suscipit ultricies neque.</div></div></div></div>
+
+<h4 id="垂直居中"><a href="#垂直居中" class="headerlink" title="垂直居中"></a>垂直居中</h4><div class="Grid Grid--gutters Grid--center"><div class="Grid-cell"><div class="Demo">我应该相对于我右边的格子垂直居中。</div></div><div class="Grid-cell"><div class="Demo">Curabitur pulvinar dolor lectus, quis porta turpis ullamcorper nec. Quisque eget varius turpis, quis iaculis nibh. Ut interdum ligula id metus hendrerit cursus. Integer eu leo felis. Aenean commodo ultrices nunc, sit amet blandit elit gravida in. Sed est ligula, ornare ac nisi adipiscing, iaculis facilisis tellus. Nullam vel facilisis libero. Duis semper lobortis elit, vitae dictum erat.</div></div></div>
+
+
+
+    </section>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
