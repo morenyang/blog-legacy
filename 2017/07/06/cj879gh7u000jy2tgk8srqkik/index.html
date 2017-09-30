@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>利用ContentEditable属性在VUE下写一个输入框 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="http://yangteng.me/static/favicon.png">
+    <link rel="stylesheet" href="/blog/css/style.css">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="layout">
+        <div class="content ">
+            
+            
+            <a href="/blog/.">Home</a>
+            
+            
+            
+            <a href="/blog/archives">Archive</a>
+            
+            
+            
+            <a href="http://yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+</nav>
+
+<main class="post">
+    <article>
+    <h1 class="article-title">
+        <a href="/blog/2017/07/06/cj879gh7u000jy2tgk8srqkik/">利用ContentEditable属性在VUE下写一个输入框</a>
+    </h1>
+
+    <section class="article-meta">
+        <p class="article-date">July 06 2017</p>
+    </section>
+
+    <section class="article-entry">
+        <p>上个月好像没更博客，因为期末考比较忙。<del>毕竟我这种靠着聪明才智活着的人想要在一群勤奋刻苦的人中间生存下来也不容易。</del></p>
+<p>进入正题。今天在写一个文本输入框，我们平时写的能输入文字的标签一般有<code>input</code>和<code>textarea</code>两种。它们各有不同的属性，<code>input</code>只能显示单行文字，而<code>textarea</code>虽然可以显示多行，但是它的高度是不能随着文字的长度变化而自适应的——但是我又想要一个足够炫酷的可以自己适应文字高度的文本框。</p>
+<p>原本以为只能通过js搞定了，然而刷知乎的时候看到他评论的文本框标签和平时自己看到的很不一样——好了就是他了。</p>
+<h3 id="contenteditable属性"><a href="#contenteditable属性" class="headerlink" title="contenteditable属性"></a>contenteditable属性</h3><p>先来介绍一下这个东西，简单来说，就是可以让你的元素内容是否可编辑。</p>
+<p>例如下面这一段文字就可以编辑：</p>
+<p contenteditable="true" style="border: 1px solid #eee; padding: 5px 8px">这是一个可编辑的段落。</p>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">contenteditable</span>&gt;</span>这是一个可编辑的段落。<span class="tag">&lt;/<span class="name">p</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>你往里面输入的文字，会被直接写入到网页的HTML代码中。因此如果我们要获取里面的内容，就可以用 <code>dom.innerText</code> 来获取。因此当我们打了一段很长的文字时，其实只是相当于在div中加了很长的文字而已。</p>
+<p><div contenteditable="true" placeholder="苟利国家生死以，岂因祸福避趋之">人呐就都不知道，自己就不可以预料。一个人的命运啊，当然要靠自我奋斗，但是也要考虑到历史的行程。我绝对不知道，我作为一个上海市委书记怎么把我选到北京去了，所以邓小平同志跟我讲话，说“中央都决定啦，你来当总书记”，我说另请高明吧。我实在我也不是谦虚，我一个上海市委书记怎么到北京来了呢？但是呢，小平同志讲“大家已经研究决定了”，所以后来我就念了两首诗，叫“苟利国家生死以，岂因祸福避趋之”，那么所以我就到了北京。</div></p>
+
+<p>我们可以把<code>input</code>标签的常用样式套用在<code>contenteditable</code>属性的元素里。例如<code>outline</code>样式。</p>
+<h4 id="实现placeholder"><a href="#实现placeholder" class="headerlink" title="实现placeholder"></a>实现placeholder</h4><p>单单一个空白的文本框可能不能满足我们的欲望。肯定有人会想如何给这个文本框加上placeholder。虽然原生不支持placeholder属性，但是我们可以可以用一些奇技淫巧来满足这个要求。</p>
+<p>我们按照往常的写法把placeholder属性写进元素里。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">contenteditable</span>=<span class="string">"true"</span> <span class="attr">placeholder</span>=<span class="string">"添加你的评论"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>然后通过css来加上placeholder</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">div</span><span class="selector-attr">[contentEditable]</span><span class="selector-pseudo">:empty</span><span class="selector-pseudo">:not(</span><span class="selector-pseudo">:focus)</span><span class="selector-pseudo">:before</span> &#123;</div><div class="line">  <span class="attribute">content</span>: <span class="built_in">attr</span>(placeholder);</div><div class="line">  <span class="attribute">color</span>: <span class="number">#aaa</span>;</div><div class="line">  <span class="attribute">font-weight</span>: <span class="number">300</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>效果大概是这样</p>
+<p><link href="/blog/static/editorable-placehodler.css" type="text/css" rel="stylesheet"></p>
+<div class="input-placeholder" contenteditable="true" placeholder="添加你的评论"></div>
+
+<h4 id="实现maxlength"><a href="#实现maxlength" class="headerlink" title="实现maxlength"></a>实现maxlength</h4><p>可能还有一些同学想要顺带实现maxlength的效果，嗯…<br><del>好好用js解决吧</del> <strong>拖出去续了！</strong></p>
+<h3 id="VUE中实现双向数据绑定"><a href="#VUE中实现双向数据绑定" class="headerlink" title="VUE中实现双向数据绑定"></a>VUE中实现双向数据绑定</h3><p>嗯用过vue的人都会常常用到<code>v-model</code>这个语法糖。然而只能在<code>input</code>、<code>textarea</code>、<code>select</code>标签和自定义组件中直接使用。（理论上来讲应该是带有value属性的元素）。因此在这里我们要手写一遍数据绑定。</p>
+<p>关于<code>v-model</code>的介绍，参考<a href="https://cn.vuejs.org/v2/guide/components.html#使用自定义事件的表单输入组件" target="_blank" rel="external">使用自定义事件的表单输入组件</a><br>里面给出的解释是<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"something"</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>等价于<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-bind:value</span>=<span class="string">"something"</span> <span class="attr">v-on:input</span>=<span class="string">"something=$event.target.value"</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>因此参照上面的写法，我们也可以自己写一组双向数据绑定:</p>
+<h5 id="html"><a href="#html" class="headerlink" title="html"></a><em>html</em></h5><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">contenteditable</span> <span class="attr">v-text</span>=<span class="string">"content"</span> @<span class="attr">input</span>=<span class="string">"handleInput"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<h5 id="js"><a href="#js" class="headerlink" title="js"></a><em>js</em></h5><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span>&#123;</div><div class="line">    data() &#123;</div><div class="line">        <span class="keyword">return</span>&#123;</div><div class="line">            content: <span class="string">''</span>        </div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    methods: &#123;</div><div class="line">        handleInput($event) &#123;</div><div class="line">            <span class="keyword">this</span>.content = $event.target.innerText;</div><div class="line">            </div><div class="line">            <span class="comment">// 下面这段代码可以限制最大长度</span></div><div class="line">            <span class="keyword">this</span>.content = <span class="keyword">this</span>.content.substring(<span class="number">0</span>,<span class="number">100</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当然你也可以把它单独做成一个组件来引用，不过我觉得两者效率差不多。</p>
+<p>以上就是用vue实现一个可以自己改变高度的文本框的全部方法介绍啦。过几天就出成绩了希望期末考好点hhhh</p>
+
+    </section>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
