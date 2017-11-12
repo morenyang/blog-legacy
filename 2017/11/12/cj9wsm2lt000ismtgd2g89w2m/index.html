@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>axios权限拦截 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="http://yangteng.me/static/favicon.png">
+    <link rel="stylesheet" href="/blog/css/style.css">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="layout">
+        <div class="content ">
+            
+            
+            <a href="/blog/.">Home</a>
+            
+            
+            
+            <a href="/blog/archives">Archive</a>
+            
+            
+            
+            <a href="http://yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+</nav>
+
+<main class="post">
+    <article>
+    <h1 class="article-title">
+        <a href="/blog/2017/11/12/cj9wsm2lt000ismtgd2g89w2m/">axios权限拦截</a>
+    </h1>
+
+    <section class="article-meta">
+        <p class="article-date">November 12 2017</p>
+    </section>
+
+    <section class="article-entry">
+        <p>在使用流行的前端框架时，前后台的数据交互常使用token或其他一些自定义headers来标识用户身份，因此在发送请求的过程中，我们就需要用到一些拦截器来帮助我们完成一些工作，例如添加自定义的headers、取消请求等。</p>
+<h3 id="添加自定义headers"><a href="#添加自定义headers" class="headerlink" title="添加自定义headers"></a>添加自定义headers</h3><p>这个操作我们在拦截器中进行就可以了</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 先预定义好一个axios实例r</span></div><div class="line"><span class="keyword">const</span> r = axios.create(&#123;</div><div class="line">    <span class="comment">// your config</span></div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// 给r配置拦截器</span></div><div class="line">r.interceptors.request.use(</div><div class="line">  config =&gt; &#123;</div><div class="line">    <span class="comment">// 自定义一些配置</span></div><div class="line">    config.headers[<span class="string">'x-user-flag'</span>] = <span class="string">'your-flag'</span></div><div class="line">    <span class="comment">// 从store中获取数据</span></div><div class="line">    <span class="keyword">const</span> authState = store.getState().auth;</div><div class="line">    <span class="keyword">if</span> (!!authState.loginState) &#123;</div><div class="line">      config.headers[<span class="string">'openid'</span>] = authState.openid;</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">return</span> config;</div><div class="line">  &#125;,</div><div class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</div><div class="line">);</div></pre></td></tr></table></figure>
+<h3 id="判断没有权限时拦截请求"><a href="#判断没有权限时拦截请求" class="headerlink" title="判断没有权限时拦截请求"></a>判断没有权限时拦截请求</h3><p>这个操作同样要在拦截器中定义，但是我们要先创建一个CancelToken</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> CancelToken = axios.CancelToken;</div><div class="line"><span class="keyword">const</span> source = CancelToken.source();</div><div class="line"></div><div class="line">r.interceptors.request.use(</div><div class="line">  config =&gt; &#123;</div><div class="line">    <span class="keyword">const</span> authState = store.getState().auth;</div><div class="line">    <span class="keyword">if</span> (!!authState.loginState) &#123;</div><div class="line">      config.headers[<span class="string">'openid'</span>] = authState.openid;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      source.cancel(<span class="string">'No Permission'</span>);</div><div class="line">      <span class="comment">// some other actions</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> config;</div><div class="line">  &#125;,</div><div class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</div><div class="line">);</div></pre></td></tr></table></figure>
+<h3 id="拦截响应"><a href="#拦截响应" class="headerlink" title="拦截响应"></a>拦截响应</h3><p>拦截响应和上述方法类似，新建一个response的拦截器即可</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">r.interceptors.use(</div><div class="line">  response =&gt; &#123;</div><div class="line">    <span class="comment">// some actions</span></div><div class="line">    <span class="keyword">return</span> response;</div><div class="line">  &#125;,</div><div class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</div><div class="line">);</div></pre></td></tr></table></figure>
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><p><a href="https://github.com/axios/axios#interceptors" target="_blank" rel="external">https://github.com/axios/axios#interceptors</a><br><a href="https://github.com/axios/axios#cancellation" target="_blank" rel="external">https://github.com/axios/axios#cancellation</a></p>
+
+    </section>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
