@@ -1,0 +1,56 @@
+header.header {
+  text-align: left;
+  background: #f6f6f6 no-repeat center center;
+
+  background-size: cover;
+
+  h1, h3 {
+    margin: 0 !important;
+  }
+  // placeholder
+  .placeholder {
+    position: relative;
+    overflow: hidden;
+    z-index: -1024;
+    padding-top: 30vh;
+  }
+
+  // content
+  .content {
+    padding-bottom: 50px;
+    .layout {
+      margin: 0 auto;
+      max-width: 100%;
+      padding-left: 15px;
+      @media (min-width: 768px) {
+        padding-left: 0;
+        max-width: 640px;
+      }
+      @media (min-width: 1024px) {
+        max-width: 960px;
+      }
+      @media (min-width: 1200px) {
+        max-width: 1200px;
+      }
+    }
+    .title {
+      font: 300 32px/1.5 'Oxygen', 'Source Han Sans', 'PingFang SC', 'HanHei SC', 'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;;
+      @media ( min-width: 768px) {
+        font-size: 60px;
+      }
+    }
+    .subtitle {
+      font: 300 20px/1.4 'Raleway', 'Source Han Sans', 'PingFang SC', 'HanHei SC', 'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;;
+      @media ( min-width: 768px) {
+        font-size: 32px;
+      }
+    }
+  }
+}
+
+header.light {
+  background-color: #393939;
+  .layout {
+    color: white;
+  }
+}

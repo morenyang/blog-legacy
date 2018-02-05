@@ -1,0 +1,61 @@
+@import "../public/library";
+
+.navbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  font: 400 16px/1.5 'Raleway', 'Source Han Sans', 'PingFang SC', 'HanHei SC', 'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  text-transform: capitalize !important;
+  @media (min-width: 768px) {
+    font-size: 20px;
+  }
+
+  .layout {
+    margin: 0 auto;
+    max-width: 100%;
+    @media (min-width: 768px) {
+      padding-left: 0;
+      max-width: 640px;
+    }
+    @media (min-width: 1024px) {
+      max-width: 960px;
+    }
+    @media (min-width: 1200px) {
+      max-width: 1200px;
+    }
+    .content {
+      display: table;
+      float: right;
+      margin: @gutter 0;
+      padding-right: 10px;
+      @media (min-width: 768px) {
+        padding-right: 0;
+      }
+    }
+
+  }
+
+  @nav-link-color: #666;
+  @light-theme-color: white;
+  a {
+    color: @nav-link-color;
+    text-transform: capitalize !important;
+    padding: 6px 5px;
+    border-bottom: 3px solid rgba(0, 0, 0, 0);
+    & + a {
+      margin-left: 5px;
+    }
+  }
+  .active {
+    border-bottom-color: @nav-link-color;
+  }
+
+  .light {
+    a {
+      color: @light-theme-color;
+    }
+    .active {
+      border-bottom-color: @light-theme-color;
+    }
+  }
+}
