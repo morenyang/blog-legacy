@@ -14,7 +14,7 @@ timezone:
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: yangteng.me/blog
 root: /blog/
-permalink: :year/:month/:day/:id/
+permalink: :year/:name/
 permalink_defaults:
 
 # Directory
