@@ -6,7 +6,7 @@ foreword: 利用JS把JSON数据处理并绑定到HTML模板中的一个比较好
 
 这段时间写网站的时候遇到了一些很烦的问题，就是要把从后台获取到的JSON数据渲染成HTML内容，有时候还需要再对数据进行一次请求的处理。然后在二次处理数据的时候我遇到了不少问题，于是请教了eWind大神。
 
-*这篇文章的内容参考eWind大神的文章：[JS 绑定数据到 HTML 模板的简易模式](http://ewind.us/2016/js-render-html-template/)*
+*这篇文章的内容参考eWind大神的文章：[JS 绑定数据到 HTML 模板的简易模式](http://ewind.us/2016/js-render-html-template/)*<!-- more -->
 
 ---
 
