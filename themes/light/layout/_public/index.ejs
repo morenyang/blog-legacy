@@ -1,0 +1,26 @@
+<main class="index">
+    <% page.posts.each(function(post){ %>
+    <hr>
+    <article>
+        <h1 class="article-title">
+            <a href="<%- url_for(post.path) %>"><%- post.title %></a>
+        </h1>
+        <div class="article-meta">
+                <span class="article-date">Posted <%- date(post.date, 'MMMM DD YYYY') %></span>
+            </div>
+        <% if(!!post.excerpt){ %>
+        <div class="article-entry">
+            <%- post.excerpt %>
+        </div>
+        <div class="article-link">
+            <a href="<%- url_for(post.path) %>">Read More →</a>
+        </div>
+        <% } else { %>
+            <div class="article-link">
+                <a href="<%- url_for(post.path) %>">Read →</a>
+            </div>
+        <% } %>
+    </article>
+    <% }) %>
+    <%- partial('../_public/paginator') %>
+</main>

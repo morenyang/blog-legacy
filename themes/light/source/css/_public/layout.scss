@@ -1,0 +1,20 @@
+.grid {
+    display: flex;
+    align-items: center;
+  }
+  
+  .grid-item {
+    flex: 1;
+  }
+  
+  img {
+    max-width: 100%;
+  }
+  
+  code {
+    word-wrap: break-word;
+  }
+  
+  .hidden {
+    display: none;
+  }

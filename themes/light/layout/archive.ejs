@@ -1,0 +1,9 @@
+<main class="archive">
+    <div class="placeholder"></div>
+    <% page.posts.each(function(post){ %>
+    <%- partial('./_public/archive', {post: post, index: false}) %>
+    <% }) %>
+
+    <%- partial('./_public/paginator') %>
+</main>
+<%- partial('./_public/footer') %>

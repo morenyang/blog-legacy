@@ -1,0 +1,96 @@
+main.index {
+  max-width: $main-content-width;
+  margin: 0 auto;
+  padding: $gutter;
+
+  hr {
+    display: none;
+  }
+
+  article {
+    // border-top: 1px solid $article-border-color;
+    margin: $article-gutter - 5px 0;
+    + hr {
+      display: block;
+      border: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  .article-entry {
+    padding: 5px 0;
+    font-family: "Raleway", "Source Han Sans", "PingFang SC", "HanHei SC",
+      "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
+      sans-serif;
+    font-weight: 400;
+    @media (min-height: 768px) {
+      padding: $gutter 0 2*$gutter 0;
+    }
+    & > p {
+      margin: 5px 0;
+    }
+  }
+
+  .article-title {
+    margin: 0;
+    text-transform: capitalize;
+    color: rgb(194, 27, 21);
+    font: 500 26px/1.3 "Roboto", "Source Han Sans", "PingFang SC", "HanHei SC",
+      "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
+      sans-serif;
+    & + .article-meta {
+      margin: $gutter/2 0;
+      padding-top: 0px;
+    }
+    @media screen and (min-width: 768px) {
+      font-size: 28px;
+    }
+  }
+
+  .article-link {
+    color: rgb(194, 27, 21);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.7;
+    padding: $gutter/2 0 0;
+  }
+
+  .article-date {
+    font-size: 15px;
+    color: $article-date-color;
+  }
+
+  .page-nav {
+    margin-top: $article-gutter;
+    font-size: $page-nav-font-size;
+
+    $page-nav-color: #666;
+    .page-number {
+      padding: $gutter / 3;
+      color: $page-nav-color;
+      &:hover {
+        color: #777;
+        transition: all 0.1s ease-in 0s;
+      }
+    }
+    .current {
+      // color: $page-nav-current-page;
+      color: inherit;
+    }
+
+    .extend {
+      padding: 0;
+      color: $page-nav-color;
+      &.prev {
+        padding-right: $gutter / 2;
+      }
+      &.next {
+        padding-left: $gutter / 2;
+      }
+      &:hover {
+        color: #777;
+        transition: all 0.1s ease-in 0s;
+      }
+    }
+  }
+}

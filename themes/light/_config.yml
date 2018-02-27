@@ -1,0 +1,13 @@
+# site
+favicon: http://obtkzjq1l.bkt.clouddn.com/static/img/favicon.png
+
+# menu
+nav:
+  Home: /.
+  Archive: /archives
+  About: //yangteng.me
+
+node_sass:
+  outputStyle: nested
+  precision: 5
+  sourceComments: true
