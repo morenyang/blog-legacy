@@ -8,6 +8,9 @@ main.post {
     margin: $gutter auto 0;
     padding: $gutter;
     color: #333;
+    a {
+      color: $color-belizeHole;
+    }
     h1,
     .h1 {
       font-size: 2rem;
