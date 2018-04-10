@@ -1,0 +1,14 @@
+main.archive{
+  max-width: $main-content-width;
+  margin: 0 auto;
+  padding: $gutter;
+
+  .placeholder{
+    margin-top: 5 * $gutter;
+  }
+
+  .article-title{
+    font-size: 20px;
+    color: $theme-red;
+  }
+}

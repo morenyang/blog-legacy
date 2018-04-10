@@ -4,6 +4,8 @@
     <%- partial('./_public/archive', {post: post, index: false}) %>
     <% }) %>
 
+    <% if(page.total > 1){ %>
     <%- partial('./_public/paginator') %>
+    <% } %>
 </main>
 <%- partial('./_public/footer') %>
