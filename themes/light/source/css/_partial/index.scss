@@ -23,9 +23,6 @@ main.index {
       "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
       sans-serif;
     font-weight: 400;
-    @media (min-height: 768px) {
-      padding: $gutter 0 2*$gutter 0;
-    }
     & > p {
       margin: 5px 0;
     }
@@ -60,5 +57,5 @@ main.index {
     color: $article-date-color;
   }
 
-  
+
 }
