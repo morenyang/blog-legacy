@@ -8,9 +8,9 @@
         <div class="article-meta">
                 <span class="article-date">Posted <%- date(post.date, 'MMMM DD YYYY') %></span>
             </div>
-        <% if(!!post.excerpt){ %>
+        <% if(!!post.excerpt || !!post.foreword){ %>
         <div class="article-entry">
-            <%- post.excerpt %>
+            <%- post.excerpt || post.foreword %>
         </div>
         <div class="article-link">
             <a href="<%- url_for(post.path) %>">Read More →</a>
