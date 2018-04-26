@@ -142,7 +142,6 @@ pre {
   }
   .tag .value,
   .string,
-  .subst,
   .haskell .type,
   .preprocessor,
   .ruby .class .parent,
@@ -179,6 +178,9 @@ pre {
   }
   .deletion {
     color: $color-powerGranate;
+  }
+  .subst{
+    color: $color-darkOrange;
   }
   .coffeescript .javascript,
   .javascript .xml,
