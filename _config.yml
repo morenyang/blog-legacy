@@ -91,3 +91,11 @@ markdown:
     linkify: true
     typographer: true
     quotes: '“”‘’'
+
+gitalk:
+  enable: true #用来做启用判断可以不用
+  owner: morenyang
+  repo: blog
+  admin: morenyang
+  clientID: 6911ddf87e5838ca7da0
+  clientSecret: c8b78dec8b54f7009dbd6cce41d42d19eeb0f627

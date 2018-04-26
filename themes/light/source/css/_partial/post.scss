@@ -113,4 +113,11 @@ main.post {
   .article-comment {
     margin-top: 6 * $gutter;
   }
+
+  .article-comments{
+    margin: 25px auto;
+    max-width: 800px;
+    border-top: 2px solid rgba(0, 0, 0, 0.05)
+  }
+  
 }
