@@ -99,3 +99,9 @@ gitalk:
   admin: morenyang
   clientID: 6911ddf87e5838ca7da0
   clientSecret: c8b78dec8b54f7009dbd6cce41d42d19eeb0f627
+
+node_sass:
+  outputStyle: compressed
+  precision: 5
+  sourceComments: false
+  
