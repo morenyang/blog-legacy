@@ -95,10 +95,8 @@ main.post {
     margin-bottom: 5px;
     width: 100%;
     @media (min-width: 768px) {
-      font-size: 32px;
-    }
-    @media (min-width: 768px) {
       max-width: 800px;
+      font-size: 32px;
     }
     @media (min-width: 1024px) {
       max-width: $main-content-width;
@@ -121,8 +119,11 @@ main.post {
   }
 
   .article-comments {
-    margin: 25px auto;
+    margin: 15px auto;
     max-width: 800px;
     border-top: 2px solid rgba(0, 0, 0, 0.05);
+    @media screen and (max-width: 800px){
+      padding:  5px 15px;
+    }
   }
 }
