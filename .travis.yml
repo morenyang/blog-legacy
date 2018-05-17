@@ -1,0 +1,10 @@
+language: node_js
+node_js: stable
+before_script:
+  - git config user.name "Moren YANG"
+  - git config user.email "morenyang88@gmail.com"
+  - sed -i'' "s~git@github.com:morenyang/blog.git~https://${GITHUB_ACCESS_TOKEN}:x-oauth-basic@github.com/morenyang/blog.git~" _config.yml
+script:
+  - hexo g
+  - hexo d
+  
