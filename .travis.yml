@@ -6,4 +6,5 @@ before_script:
   - sed -i'' "s~https://github.com/morenyang/blog.git~https://${GITHUB_ACCESS_TOKEN}@github.com/morenyang/blog.git~" _config.yml
 script:
   - hexo g
+after_success:
   - hexo d
