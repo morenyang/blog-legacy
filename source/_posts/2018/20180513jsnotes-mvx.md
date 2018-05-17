@@ -39,7 +39,7 @@ MVP这个模式解决的问题主要是数据频繁更新时，更新界面麻�
 
 ## MVVM
 
-MVVM 指的是 Model-View-ViewModel （模型-视图-视图模型）模型。在这个模式中， View 是无状态的，ViewModel 持有它的数据，并且根据这些数据实时调整和更新视图， View 和 ViewModel 直接交互。**（也可以理解成，ViewModel 实现了其_内部数据_和视图的绑定。）** 同时， ViewModel 也会监听 View 上触发的动作，并根据动作更新 Model 。
+MVVM 指的是 Model-View-ViewModel （模型-视图-视图模型）模型。在这个模式中， View 是无状态的，ViewModel 持有它的数据，并且根据这些数据实时调整和更新视图， View 和 ViewModel 直接交互。**（也可以理解成，ViewModel 实现了其 _内部数据_ 和视图的绑定。）** 同时， ViewModel 也会监听 View 上触发的动作，并根据动作更新 Model 。
 
 它的业务流程大致是： ViewModel 监听到 View 上的用户操作 -> ViewModel 根据操作更新数据 -> 如果有需要则 ViewModel 会更新 Model -> Model 更新后通知 ViewModel -> ViewModel 根据 Model 更新自己的数据 -> ViewModel 根据数据重新渲染 View
 
