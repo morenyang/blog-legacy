@@ -1,5 +1,5 @@
 language: node_js
-node_js: lts
+node_js: stable
 before_script:
   - git config user.name "Moren YANG"
   - git config user.email "morenyang88@gmail.com"
