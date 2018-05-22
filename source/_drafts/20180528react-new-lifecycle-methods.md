@@ -3,8 +3,6 @@ title: React新生命周期函数和迁移路径
 tags:
 ---
 
-> _本文内容主要参考自 [static-lifecycle-methods](https://github.com/reactjs/rfcs/blob/master/text/0006-static-lifecycle-methods.md) ，并加上了自己的一些理解。_
-
 在今年三月底的时候React 发布了 16.3 版本。这次更新主要有两个内容——新的生命周期函数和context API（[React v16.3.0: New lifecycles and context API](https://reactjs.org/blog/2018/03/29/react-v-16-3.html)）。
 
 对于生命周期函数，主要有以下改变（[Update on Async Rendering](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html)）：
@@ -25,16 +23,18 @@ tags:
 
 本文会简单说明一些旧的生命周期函数可能造成的问题以及如何迁移到新的生命周期函数。
 
-## 为什么要修改生命周期函数
-这次添加新的生命周期函数和弃用旧的生命周期函数的主要原因是旧版组件API中的函数存在一些异步渲染的潜在安全缺陷。举几个常见的问题（[Common problems](https://github.com/reactjs/rfcs/blob/master/text/0006-static-lifecycle-methods.md#common-problems)）：
+## 动机
+这次添加新的静态生命周期函数`getDerivedStateFromProps` 并弃用旧的生命周期函数的 _主要原因_ 是旧版组件API中的函数存在一些异步渲染的潜在安全缺陷。举几个常见的问题（[Common problems](https://github.com/reactjs/rfcs/blob/master/text/0006-static-lifecycle-methods.md#common-problems)）：
 
 - 在`componentWillMount` 中初始化Flux store 时，如果这个store或其依赖在未来发生变化，就可能会导致一些问题。应该尽量规避这些不确定的情况。
 - 在`componentWillMount` 中添加事件监听或事件订阅，并且你可能准备在`componentWillUnmount` 中删除他们。如果在组件初次render之前发生中断或出错，则会导致泄露。
 - 在`componentWillMount` 、`componentWillUpdate` 、`componentWillReceiveProps` 或`render`中调用了非幂等（Non-idempotent ）外部函数，例如注册了可能被多次调用的回调函数等。
 
+另外，由于异步渲染各个函数调用之间可能产生延迟，为了防止这些延迟可能导致的视图渲染时无法得到应有结果的问题，添加了`getSnapshotBeforeUpdate` 生命周期函数。这个生命周期在宿主环境（ _host environment_ ，如DOM）发生改变之前为异步渲染提供准确的数值。
+
 ## 例子和解决方案
 
-### 在 _Mount_ 期间执行异步操作获取数据
+### 在 _mount_ 期间执行异步操作获取数据
 
 很多人这么做是想尽可能早的进行数据加载，特别是在性能底下的移动设备上——因为在初次`render` 和`componentDidMount` 之间可能会间隔几百毫秒的时间。这种情况看似可以在Mount完成之前获取到数据。
 
@@ -301,6 +301,7 @@ class ExampleComponent extends React.Component {
 }
 ```
 
+
 ### 保存从 _Props_ 或 _State_ 中派生的值
 
 这种模式的用例是保存基于 _`props`_ 或 _`state`_ （也可能是`props`和`state`，原文为 _and/or_ 本段之后的内容不再特别说明） 中计算出来的值。
@@ -342,3 +343,225 @@ class ExampleComponent extends React.Component {
 }
 ```
 
+### 在 _mount_ 期间初始化 Flux store 
+
+这种模式的常见用例是在组件mount时初始化一些Flux 状态。
+
+这些步骤在`componentWillMount` 中完成可能会导致一些问题，例如，如果该操作不是幂等的。从组件的角度来看，多次调度是否会导致问题往往是无法确定的。同时，即使在组件创建的时候如果不导致问题，也可能会在之后更改存储内容而导致问题。应当避免这种不确定性问题的发生。
+
+我们推荐在`componentDidMount` 函数中进行此类操作，因为它只会被调用一次。
+
+#### Before
+```js
+class ExampleComponent extends React.Component {
+  componentWillMount() {
+    FluxStore.dispatchSomeAction();
+  }
+}
+```
+
+#### After
+```js
+
+classclass ExampleComponent extends React.Component {
+  componentDidMount() {
+    // Side effects (like Flux actions) should only be done after mount or update.
+    // This prevents duplicate actions or certain types of infinite loops.
+    FluxStore.dispatchSomeAction();
+  }
+}
+```
+
+### <u>在 _Props_ 改变时获取外部数据</u>
+
+这种模式常用于根据`props`传递的新参数来获取外部数据，并改变组件`state` 中的状态，例如由父级router组件传递过来的页码参数改变或文章id改变。
+
+在旧版本中通常会在`componentWillReceiveProps` 函数中判断props是否改变，并依据改变后的值来调用获取外部数据的函数。对于这种模式，推荐将数据更新移入`componentDidUpdate` 。同时也可以在渲染之前通过`getDerivedStateFromProps` 在执行一些清除旧数据的操作。
+
+#### Before
+```js
+class ExampleComponent extends React.Component {
+  state = {
+    externalData: null,
+  };
+
+  componentDidMount() {
+    this._loadAsyncData(this.props.id);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.id !== this.props.id) {
+      this.setState({externalData: null});
+      this._loadAsyncData(nextProps.id);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._asyncRequest) {
+      this._asyncRequest.cancel();
+    }
+  }
+
+  render() {
+    if (this.state.externalData === null) {
+      // Render loading state ...
+    } else {
+      // Render real UI ...
+    }
+  }
+
+  _loadAsyncData(id) {
+    this._asyncRequest = asyncLoadData(id).then(
+      externalData => {
+        this._asyncRequest = null;
+        this.setState({externalData});
+      }
+    );
+  }
+}
+```
+
+#### After
+```js
+class ExampleComponent extends React.Component {
+  state = {
+    externalData: null,
+  };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    // 将当前的props镜像保存在state中，以便在状态更新时比较更改情况
+    // 清楚之前加载的数据。（因此我们不会渲染旧数据）
+    if (nextProps.id !== prevState.prevId) {
+      return {
+        externalData: null,
+        prevId: nextProps.id,
+      };
+    }
+
+    return null;
+  }
+
+  componentDidMount() {
+    // 首次加载数据
+    this._loadAsyncData(this.props.id);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // props更新后加载数据
+    if (this.state.externalData === null) {
+      this._loadAsyncData(this.props.id);
+    }
+  }
+
+  componentWillUnmount() {
+    // 如果在请求加载完成前卸载组件，则取消这次请求
+    if (this._asyncRequest) {
+      this._asyncRequest.cancel();
+    }
+  }
+
+  render() {
+    if (this.state.externalData === null) {
+      // Render loading state ...
+    } else {
+      // Render real UI ...
+    }
+  }
+
+  _loadAsyncData(id) {
+    this._asyncRequest = asyncLoadData(id).then(
+      externalData => {
+        this._asyncRequest = null;
+        this.setState({externalData});
+      }
+    );
+  }
+}
+```
+
+### 在更新之前获取DOM属性
+
+`componentWillUpdate` 有时会用来读取DOM属性。但是在异步渲染时，在 _渲染_ 的生命周期（如`componentWillUpdate` 和`render` ）和 _提交_ 的生命周期（如`componentDidUpdate` ）之间可能会出现延迟。如果用户在这段时间内做了类似调整窗口大小的操作，那么`componentWillUpdate` 读取到的`scrollHeight` 的只能是旧的值。
+
+解决这个问题的方法是使用新的 _提交_ 阶段的生命周期函数——`getSanpshotBeforeUpdate` 。在改变发生（例如DOM更新）之前，这个方法会被立即调用。在改变发生之后，它会立即返回一个React 值作为参数传递给`componentDidUpdate`  。
+
+#### Before
+```js
+class ScrollingList extends React.Component {
+  listRef = null;
+  previousScrollOffset = null;
+
+  componentWillUpdate(nextProps, nextState) {
+    // 是否在向列表中添加新条目？
+    // 捕捉滚动位置，以便我们调整滚动条。
+    if (this.props.list.length < nextProps.list.length) {
+      this.previousScrollOffset =
+        this.listRef.scrollHeight - this.listRef.scrollTop;
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // 如果设置了 previousScrollOffset ，则说明刚刚添加了新条目。
+    // 调整滚动条，以免使旧条目被新条目移出可视范围。
+    if (this.previousScrollOffset !== null) {
+      this.listRef.scrollTop =
+        this.listRef.scrollHeight -
+        this.previousScrollOffset;
+      this.previousScrollOffset = null;
+    }
+  }
+
+  render() {
+    return (
+      <div ref={this.setListRef}>
+        {/* ...contents... */}
+      </div>
+    );
+  }
+
+  setListRef = ref => {
+    this.listRef = ref;
+  };
+}
+```
+
+#### After
+
+```js
+class ScrollingList extends React.Component {
+  listRef = null;
+
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    // 是否在向列表中添加新条目？
+    // 捕捉滚动位置，以便我们调整滚动条。
+    if (prevProps.list.length < this.props.list.length) {
+      return (
+        this.listRef.scrollHeight - this.listRef.scrollTop
+      );
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    // 如果我们拥有了快照值，则说明刚刚添加了新条目。
+    // 调整滚动条，以免使旧条目被新条目移出可视范围。
+    // (这里的snapshot 指的是从getSnapshotBeforeUpdate 返回的值)
+    if (snapshot !== null) {
+      this.listRef.scrollTop =
+        this.listRef.scrollHeight - snapshot;
+    }
+  }
+
+  render() {
+    return (
+      <div ref={this.setListRef}>
+        {/* ...contents... */}
+      </div>
+    );
+  }
+
+  setListRef = ref => {
+    this.listRef = ref;
+  };
+}
+```
