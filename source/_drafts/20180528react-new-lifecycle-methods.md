@@ -6,7 +6,7 @@ tags:
 在今年三月底的时候React 发布了 16.3 版本。这次更新主要有两个内容——新的生命周期函数和context API（[React v16.3.0: New lifecycles and context API](https://reactjs.org/blog/2018/03/29/react-v-16-3.html)）。
 
 对于生命周期函数，主要有以下改变（[Update on Async Rendering](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html)）：
-- 以下生命周期函数将在以后的版本（17.0）中加上`UNSAFE_`前缀： 
+- 以下生命周期函数将在以后的版本（17.0）中弃用（加上`UNSAFE_`前缀）： 
 	- `componentWillMount `
 	- `componentWillReceiveProps `
 	- `componentWillUpdate `
@@ -14,13 +14,42 @@ tags:
 	- static `getDerivedStateFromProps `
 	- `getSnapshotBeforeUpdate `
 
+可以通过两张示意图对比一下新旧生命周期函数
+
 旧的React 生命周期示意图如下
 ![](/blog/images/180528/2.png)
 
 新的React 生命周期示意图如下（[react-lifecycle-methods-diagram](https://github.com/wojtekmaj/react-lifecycle-methods-diagram/)）:
 ![](/blog/images/180528/1.jpg)
 
-本文会简单说明一些旧的生命周期函数可能造成的问题以及如何迁移到新的生命周期函数。
+本文会简单介绍新的生命周期函数、说明旧的生命周期函数可能造成的一些问题以及如何迁移到新的生命周期函数。
+
+## 新的生命周期函数
+### `static getDerivedStateFromProps()`
+
+```js
+static getDerivedStateFromProps(nextProps, prevState)
+```
+
+这个函数会在组件被实例化或接收到新的 _props_ 时被调用。函数返回一个对象用于更新 _state_ 以响应 _props_ 变化。 如果返回值为`null` 则表明不改变 _state_ 。
+
+如果函数返回一个对象，这个对象的键将被合并到现有 _state_ 中。
+
+需要注意的是，React 在 _props_ 没有发生更改的情况下也可能调用这个函数。如果计算将要派生出的数据需要消耗很多资源，请将新的 _props_ 和上一个 _props_ （需要人为纪录下来）进行对比，在仅必要的时候进行计算。
+
+也就是说，现在你不再有权在`getDerivedStateFromProps` 函数中获取`this.props`。如果你需要用到`props`中的数据，可以选择将他们保存在`state`中。如果你觉得这么做会导致数据重用，可以参考这篇[文档](https://reactjs.org/docs/state-and-lifecycle.html)。
+
+[官方文档](https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops)
+
+### `getSnapshotBeforeUpdate()`
+
+```js
+getSnapshotBeforeUpdate(prevProps, prevState)
+```
+
+这个函数会在最新的渲染输出提交给DOM前将会立即调用。函数会返回一个Snapshot实例。在`componentDidUpdate` 函数中它可以作为第三个参数被调用，以便对DOM进行状态更新。
+
+[官方文档](https://doc.react-china.org/docs/react-component.html#getsnapshotbeforeupdate)
 
 ## 动机
 这次添加新的静态生命周期函数`getDerivedStateFromProps` 并弃用旧的生命周期函数的 _主要原因_ 是旧版组件API中的函数存在一些异步渲染的潜在安全缺陷。举几个常见的问题（[Common problems](https://github.com/reactjs/rfcs/blob/master/text/0006-static-lifecycle-methods.md#common-problems)）：
@@ -29,9 +58,9 @@ tags:
 - 在`componentWillMount` 中添加事件监听或事件订阅，并且你可能准备在`componentWillUnmount` 中删除他们。如果在组件初次render之前发生中断或出错，则会导致泄露。
 - 在`componentWillMount` 、`componentWillUpdate` 、`componentWillReceiveProps` 或`render`中调用了非幂等（Non-idempotent ）外部函数，例如注册了可能被多次调用的回调函数等。
 
-另外，由于异步渲染各个函数调用之间可能产生延迟，为了防止这些延迟可能导致的视图渲染时无法得到应有结果的问题，添加了`getSnapshotBeforeUpdate` 生命周期函数。这个生命周期在宿主环境（ _host environment_ ，如DOM）发生改变之前为异步渲染提供准确的数值。
+另外，由于异步渲染函数调用之间可能产生延迟，为了防止这些延迟可能导致的视图渲染时无法得到应有结果的问题，添加了`getSnapshotBeforeUpdate` 生命周期函数。这个生命周期在宿主环境（ _host environment_ ，如DOM）发生改变之前为异步渲染提供准确的数值。
 
-## 例子和解决方案
+## 例子和迁移方案
 
 ### 在 _mount_ 期间执行异步操作获取数据
 
@@ -83,7 +112,7 @@ class ExampleComponent extends React.Component {
 
   render() {
     if (this.state.externalData === null) {
-      // 尝试尽早地创造缓存
+      // 如果有必要可以尝试尽早地创造缓存
       // asyncLoadData(this.props.someId);
 
       // Render loading UI...
@@ -166,9 +195,9 @@ class ExampleComponent extends React.Component {
 }
 ```
 
-仔细阅读代码你会发现，上面这个例子中，在组件的 _state_ 里保存了一部分当前 _props_ 的状态。这么做的目的是可以使`getDerivedStateFromProps` 函数像先前的`componentWillReceiveProps` 函数一样，获取当前（previous）的 _props_ 值。
+仔细阅读代码你会发现，上面这个例子中，在组件的 _state_ 里保存了一部分当前 _props_ 的状态。这么做的目的是可以使`getDerivedStateFromProps` 函数像先前的`componentWillReceiveProps` 函数一样，获取当前的 _props_ 值（prevProps）。
 
-值得一提的是，在推出`getDerivedStateFromProps` 函数后，除了调用`setState` 函数外，React 有了第二个更新状态的方式。
+值得一提的是，在推出`getDerivedStateFromProps` 函数后，除了调用`setState` 函数外，React 有了第二个更新状态的函数。
 
 ### 添加事件监听或订阅
 
@@ -176,7 +205,7 @@ class ExampleComponent extends React.Component {
 
 `componentWillMount` 函数常被用于这类用例。但这么做可能会导致一些问题——因为在初次mount期间任何中断或错误都会导致内存泄漏。（对于没有完成mount的组件，不会调用`componentWillUnmount` 函数，在这种情况下，没有安全的位置来取消订阅。）这种用例下，如果在服务端渲染中使用`componentWillMount` 会造成 context 错误。（因为`componentWillMount` 是不会在服务端被调用的。）
 
-很多人可能认为`componentWillMount` 和`componentWillUnmount` 是一对函数，并且可以成对出现——实际上并不是这样。对于一个组件来说，`componentWillMount` 被调用，不能保证`componentWillUnmount` 也会被调用。
+很多人可能认为`componentWillMount` 和`componentWillUnmount` 是一对函数，并且会被成对调用——实际上并不是这样。对于一个组件来说，`componentWillMount` 被调用，不能保证`componentWillUnmount` 也会被调用。
 
 要解决这个问题，我们应该把添加事件监听或订阅的逻辑放到`componentDidMount` 函数中。在正常情况下，组件的`componentDidMount` 被调用后，`componentWillUnmount` 一定也会被调用到。 
 
@@ -245,7 +274,7 @@ class ExampleComponent extends React.Component {
 
 这种模式的常见用例是向外部发送一个信号，说明组件内部已经发生了某些变化。
 
-`componentWillMount` 函数常被用与此，但并不能达到理想的效果，因为这类方法可能会被调用多次。为了保证安全性，应当在此处使用`componentDidUpdate` 函数，因为它能保证在每次更新时只被调用一次。（[更多说明](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html#invoking-external-callbacks)）
+`componentWillMount` 函数常被用与此，但并不能达到理想的效果，因为这类函数可能会被调用多次。为了保证安全性，应当在此处使用`componentDidUpdate` 函数，因为它能保证在每次更新时只被调用一次。（[更多说明](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html#invoking-external-callbacks)）
 
 #### Before
 ```js
@@ -480,7 +509,7 @@ class ExampleComponent extends React.Component {
 
 `componentWillUpdate` 有时会用来读取DOM属性。但是在异步渲染时，在 _渲染_ 的生命周期（如`componentWillUpdate` 和`render` ）和 _提交_ 的生命周期（如`componentDidUpdate` ）之间可能会出现延迟。如果用户在这段时间内做了类似调整窗口大小的操作，那么`componentWillUpdate` 读取到的`scrollHeight` 的只能是旧的值。
 
-解决这个问题的方法是使用新的 _提交_ 阶段的生命周期函数——`getSanpshotBeforeUpdate` 。在改变发生（例如DOM更新）之前，这个方法会被立即调用。在改变发生之后，它会立即返回一个React 值作为参数传递给`componentDidUpdate`  。
+解决这个问题的方法是使用新的 _提交_ 阶段的生命周期函数——`getSanpshotBeforeUpdate` 。在改变发生（例如DOM更新）之前，这个函数会被立即调用。在改变发生之后，它会立即返回一个Snapshot 类型值作为参数传递给`componentDidUpdate`  。
 
 #### Before
 ```js
@@ -563,43 +592,15 @@ class ScrollingList extends React.Component {
 }
 ```
 
-
-## 新的生命周期函数
-### `static getDerivedStateFromProps()`
-
-```js
-static getDerivedStateFromProps(nextProps, prevState)
-```
-
-这个函数会在组件被实例化或接收到新的 _props_ 时被调用。函数返回一个对象用于更新 _state_ 以响应 _props_ 变化。 如果返回值为`null` 则表明不改变 _state_ 。
-
-如果函数返回一个对象，这个对象的键将被合并到现有 _state_ 中。
-
-需要注意的是，React 在 _props_ 没有发生更改的情况下也可能调用这个函数。如果计算将要派生出的数据需要消耗很多资源，请将新的 _props_ 和上一个 _props_ （需要人为纪录下来）进行对比，在仅必要的时候进行计算。
-
-也就是说，现在你不再有权在`getDerivedStateFromProps` 函数中获取`this.props`。如果你需要用到`props`中的数据，可以选择将他们保存在`state`中。如果你觉得这么做会导致数据重用，可以参考这篇[文档](https://reactjs.org/docs/state-and-lifecycle.html)。
-
-[官方文档](https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops)
-
-### `getSnapshotBeforeUpdate()`
-
-```js
-getSnapshotBeforeUpdate(prevProps, prevState)
-```
-
-这个函数会在最新的渲染输出提交给DOM前将会立即调用。函数会返回一个Snapshot实例。在`componentDidUpdate` 函数中它可以作为第三个参数被调用，以便对DOM进行状态更新。
-
-[官方文档](https://doc.react-china.org/docs/react-component.html#getsnapshotbeforeupdate)
-
 ## 小结
 
 实际上本次生命周期函数的更新，归根结底是在围绕React异步渲染做的。
 
-仔细看一看旧版的生命周期函数示意图，你就会发现这次去掉的几个函数都是 _渲染_ 阶段的。因为这几个生命周期函数或多或少的会调用可能影响内部数据的外部函数（例如异步获取数据）或进行`setState` 等操作。为了让这些可能导致副作用的函数不使 _提交_ 阶段的结果出现偏差，因此选用了一个安全的静态函数代替他们，并添加了一个函数来解决 _渲染_ 和 _提交_ 之间延迟可能造成的问题。
+仔细看一看旧版的生命周期函数示意图，你就会发现这次去掉的几个函数都是 _渲染_ 阶段的。因为这几个生命周期函数或多或少的会调用可能影响内部数据的外部函数（例如异步获取数据）或进行`setState` 等操作。为了让这些可能导致副作用的函数不使 _提交_ 阶段的结果出现偏差，因此选用了一个安全的静态函数代替他们，并添加了一个函数来解决 _渲染_ 和 _提交_ 状态之间延迟可能造成的问题。
 
-如果你还没来得及把旧的生命周期函数改成新的，也不必太着急，因为等到React 17 发布以后的版本这些旧的生命周期函数才会失效，你有充足的时间去更新。
+如果你还没来得及把旧的生命周期函数替换成新的，也不必太着急，因为等到React 17 发布以后的版本这些旧的生命周期函数才会失效，你有充足的时间去更新。
 
-### 强烈建议阅读 & 本文参考资料
+### 建议阅读 & 本文参考资料
 
 * [Update on Async Rendering - React Blog](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html)
 * [React.Component - React](https://doc.react-china.org/docs/react-component.html)
