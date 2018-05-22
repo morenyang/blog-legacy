@@ -20,7 +20,6 @@ tags:
 新的React 生命周期示意图如下（[react-lifecycle-methods-diagram](https://github.com/wojtekmaj/react-lifecycle-methods-diagram/)）:
 ![](/blog/images/180528/1.jpg)
 
-
 本文会简单说明一些旧的生命周期函数可能造成的问题以及如何迁移到新的生命周期函数。
 
 ## 动机
@@ -168,8 +167,6 @@ class ExampleComponent extends React.Component {
 ```
 
 仔细阅读代码你会发现，上面这个例子中，在组件的 _state_ 里保存了一部分当前 _props_ 的状态。这么做的目的是可以使`getDerivedStateFromProps` 函数像先前的`componentWillReceiveProps` 函数一样，获取当前（previous）的 _props_ 值。
-
-在先前的版本中，如果没有特殊的业务需求，实际上是不推荐在 _state_ 中镜像保存一份 _props_ 的状态的——因为你可以随时随地的获取到它，如果做了某些不必要的更改可能会导致数据混乱。在新的版本中，如果你这么做了，在没有特殊业务需求的情况下，不推荐在`getDerivedStateFromProps` 函数外对这个镜像的 _state_ 进行更改。
 
 值得一提的是，在推出`getDerivedStateFromProps` 函数后，除了调用`setState` 函数外，React 有了第二个更新状态的方式。
 
@@ -565,3 +562,48 @@ class ScrollingList extends React.Component {
   };
 }
 ```
+
+
+## 新的生命周期函数
+### `static getDerivedStateFromProps()`
+
+```js
+static getDerivedStateFromProps(nextProps, prevState)
+```
+
+这个函数会在组件被实例化或接收到新的 _props_ 时被调用。函数返回一个对象用于更新 _state_ 以响应 _props_ 变化。 如果返回值为`null` 则表明不改变 _state_ 。
+
+如果函数返回一个对象，这个对象的键将被合并到现有 _state_ 中。
+
+需要注意的是，React 在 _props_ 没有发生更改的情况下也可能调用这个函数。如果计算将要派生出的数据需要消耗很多资源，请将新的 _props_ 和上一个 _props_ （需要人为纪录下来）进行对比，在仅必要的时候进行计算。
+
+也就是说，现在你不再有权在`getDerivedStateFromProps` 函数中获取`this.props`。如果你需要用到`props`中的数据，可以选择将他们保存在`state`中。如果你觉得这么做会导致数据重用，可以参考这篇[文档](https://reactjs.org/docs/state-and-lifecycle.html)。
+
+[官方文档](https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops)
+
+### `getSnapshotBeforeUpdate()`
+
+```js
+getSnapshotBeforeUpdate(prevProps, prevState)
+```
+
+这个函数会在最新的渲染输出提交给DOM前将会立即调用。函数会返回一个Snapshot实例。在`componentDidUpdate` 函数中它可以作为第三个参数被调用，以便对DOM进行状态更新。
+
+[官方文档](https://doc.react-china.org/docs/react-component.html#getsnapshotbeforeupdate)
+
+## 小结
+
+实际上本次生命周期函数的更新，归根结底是在围绕React异步渲染做的。
+
+仔细看一看旧版的生命周期函数示意图，你就会发现这次去掉的几个函数都是 _渲染_ 阶段的。因为这几个生命周期函数或多或少的会调用可能影响内部数据的外部函数（例如异步获取数据）或进行`setState` 等操作。为了让这些可能导致副作用的函数不使 _提交_ 阶段的结果出现偏差，因此选用了一个安全的静态函数代替他们，并添加了一个函数来解决 _渲染_ 和 _提交_ 之间延迟可能造成的问题。
+
+如果你还没来得及把旧的生命周期函数改成新的，也不必太着急，因为等到React 17 发布以后的版本这些旧的生命周期函数才会失效，你有充足的时间去更新。
+
+### 强烈建议阅读 & 本文参考资料
+
+* [Update on Async Rendering - React Blog](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html)
+* [React.Component - React](https://doc.react-china.org/docs/react-component.html)
+* [React v16.3 版本新生命周期函数浅析及升级方案 - 掘金](https://juejin.im/post/5ae6cd96f265da0b9c106931)
+* [rfcs/0006-static-lifecycle-methods.md](https://github.com/reactjs/rfcs/blob/master/text/0006-static-lifecycle-methods.md)
+* [rfcs/0033-new-commit-phase-lifecycles.md](https://github.com/reactjs/rfcs/blob/master/text/0033-new-commit-phase-lifecycles.md)
+* [static getDerivedStateFromProps that requires previous props and state callback? - Stackoverflow](https://stackoverflow.com/questions/49156717/static-getderivedstatefromprops-that-requires-previous-props-and-state-callback)
