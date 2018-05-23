@@ -100,7 +100,7 @@ main.post {
     }
   }
 
-  .header-wrapper{
+  .header-wrapper {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -145,7 +145,7 @@ main.post {
     margin: 0 auto;
     font-weight: 400;
     text-transform: capitalize;
-    padding: $article-gutter * 2/3 $gutter 0;
+    padding: 0 $gutter;
     font-size: 24px;
     line-height: 1.1;
     margin-bottom: 5px;
