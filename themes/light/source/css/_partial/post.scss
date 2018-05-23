@@ -3,7 +3,24 @@ main.post {
     line-height: $article-line-height;
   }
 
+  article.with-bg {
+    .article-title,
+    .article-meta {
+      color: #f6f6f6;
+    }
+    .navbar {
+      a {
+        color: #f6f6f6;
+      }
+      .layout {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+
   .article-entry {
+    position: relative;
+    z-index: 10;
     max-width: $main-content-width;
     margin: $gutter auto 0;
     padding: $gutter;
@@ -84,7 +101,33 @@ main.post {
     justify-content: flex-end;
     background: #f6f6f6 no-repeat center center;
     padding-bottom: 20px;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
   }
+  .header-flow {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.2) 30%,
+      rgba(0, 0, 0, 0) 40%
+    );
+    @media (max-width: 767px) {
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.2) 40%,
+        rgba(0, 0, 0, 0) 50%
+      );
+    }
+  }
+
   .article-title {
     margin: 0 auto;
     font-weight: 400;
@@ -106,11 +149,19 @@ main.post {
     }
   }
 
+  .article-title,
+  .article-meta {
+    position: relative;
+    z-index: 5;
+  }
+
+  .article-meta {
+    color: $article-date-color;
+  }
   .article-date {
     margin: 0 auto;
     max-width: $main-content-width;
     padding: 0 $gutter;
-    color: $article-date-color;
     font-weight: 300;
   }
 
@@ -122,8 +173,8 @@ main.post {
     margin: 15px auto;
     max-width: 800px;
     border-top: 2px solid rgba(0, 0, 0, 0.05);
-    @media screen and (max-width: 800px){
-      padding:  5px 15px;
+    @media screen and (max-width: 800px) {
+      padding: 5px 15px;
     }
   }
 }

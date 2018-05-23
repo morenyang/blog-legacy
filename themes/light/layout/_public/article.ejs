@@ -1,5 +1,15 @@
+<% if(post.banner){ %>
+<article class="with-bg">
+<% } else { %>
 <article>
-    <header class="article-header">
+<% } %>
+    <%- partial('./nav') %>
+    <% if(post.banner){ %>
+        <header class="article-header" <%- 'style="background-image: url(' + post.banner + ')"' %> >
+        <div class="header-flow"></div>    
+    <% } else {%>
+        <header class="article-header">
+    <% } %>
         <div class="placeholder"></div>
         <h1 class="article-title">
             <a href="<%- url_for(post.path) %>">
@@ -7,7 +17,7 @@
             </a>
         </h1>
 
-        <section class="article-meta">
+        <div class="article-meta">
             <p class="article-date">
                 Posted <%- date(post.date, 'MMMM DD YYYY') %>
             </p>
