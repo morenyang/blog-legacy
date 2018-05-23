@@ -8,3 +8,6 @@ script:
   - hexo g
 after_success:
   - hexo d
+branches:
+  only:
+    - master
