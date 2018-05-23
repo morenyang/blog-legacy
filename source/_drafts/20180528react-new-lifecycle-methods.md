@@ -11,7 +11,7 @@ tags:
 	- `componentWillReceiveProps `
 	- `componentWillUpdate `
 - 添加了两个生命周期函数：
-	- static `getDerivedStateFromProps `
+	- `static getDerivedStateFromProps `
 	- `getSnapshotBeforeUpdate `
 
 可以通过两张示意图对比一下新旧生命周期函数
@@ -388,8 +388,7 @@ class ExampleComponent extends React.Component {
 
 #### After
 ```js
-
-classclass ExampleComponent extends React.Component {
+class ExampleComponent extends React.Component {
   componentDidMount() {
     // Side effects (like Flux actions) should only be done after mount or update.
     // This prevents duplicate actions or certain types of infinite loops.
