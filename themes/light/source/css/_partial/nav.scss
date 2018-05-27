@@ -9,6 +9,7 @@
     'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
   text-transform: capitalize !important;
   transition: all ease-out .2s;
+  background: #f6f6f6;
   @media (min-width: 768px) {
     font-size: 20px;
   }
@@ -25,6 +26,9 @@
     transition: all ease-out .2s;
     @media (min-width: 768px) {
       height: 60px;
+    }
+    @media screen and (min-width: 1800px) {
+      max-width: 1800px;
     }
     .content {
       display: flex;
