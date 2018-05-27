@@ -8,11 +8,12 @@ title: todo
 > 
 > 加*的为高优先级
 
-- 浏览器缓存机制 *
+- 浏览器缓存机制 **
 - JS类型转换和抽象操作 *
 - JS内存回收机制 *
 - Promise和异步操作
-- JS表达式和函数返回值
+- JS表达式和函数返回值 **
 - React源码和再造一个React
 - immutable
-- 跨域问题的解决方案
+- 跨域问题的解决方案 **
+- Set 和 Map 的JavaScript实现 **
