@@ -8,7 +8,7 @@ title: todo
 > 
 > 加*的为高优先级
 
-- 浏览器缓存机制 **
+- ~~浏览器缓存机制~~
 - JS类型转换和抽象操作 *
 - JS内存回收机制 *
 - Promise和异步操作
@@ -17,3 +17,4 @@ title: todo
 - immutable
 - 跨域问题的解决方案 **
 - Set 和 Map 的JavaScript实现 **
+- JavaScript 中的单例模式 **
