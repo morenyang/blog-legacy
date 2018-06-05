@@ -9,20 +9,23 @@ main.post {
       color: #f6f6f6;
     }
     .navbar {
-      a {
-        color: #f6f6f6;
+      @media screen and (min-width: 1800px) {
+        background: #333;
+        a {
+          color: #f6f6f6;
+        }
       }
       .layout {
         background: rgba(0, 0, 0, 0.2);
       }
     }
   }
-
-  .navbar{
-    @media screen and (min-width: 1800px) {
-      background: #333;
+  article:not(.with-bg){
+    .header-wrapper{
+      background: #f6f6f6;
     }
   }
+
 
   .article-entry {
     position: relative;
