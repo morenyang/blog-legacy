@@ -1,9 +1,12 @@
 {
-  "name": "hexo-site",
+  "name": "morens-blog",
   "version": "0.0.0",
   "private": true,
   "hexo": {
     "version": "3.5.0"
+  },
+  "scripts": {
+    "new-draft": "hexo new draft articlename"
   },
   "dependencies": {
     "hexo": "^3.2.0",
@@ -18,5 +21,6 @@
     "hexo-renderer-stylus": "^0.3.1",
     "hexo-server": "^0.2.0",
     "markdown-it-highlight": "^0.2.0"
-  }
+  },
+  "devDependencies": {}
 }
