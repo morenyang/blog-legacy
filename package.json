@@ -6,7 +6,8 @@
     "version": "3.5.0"
   },
   "scripts": {
-    "new-draft": "hexo new draft articlename"
+    "new-draft": "hexo new draft articlename",
+    "serve": "hexo server --draft"
   },
   "dependencies": {
     "hexo": "^3.2.0",
