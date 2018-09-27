@@ -18,7 +18,7 @@ JavaScript 中的模块是纯静态的。使用`import` 和`export` 的语句必
 
 这个feature 带来的好处是可以提高编译器的执行效率，但是无法在运行时加载模块。
 
-因此有一个[提案](https://github.com/tc39/proposal-dynamic-import)建议引入`import() ` 方法来进行动态加载。例如：
+为了解决这个问题，有一个[提案](https://github.com/tc39/proposal-dynamic-import)建议引入`import() ` 方法来进行动态加载。例如：
 
 ```js
 const specifier = './module.js';
@@ -26,7 +26,75 @@ import(specifier)
   .then(someModule => someModule.foo());
 ```
 
-`import() ` 方法和`import` 语句能使用的参数是一样的，它使用起来类似于一个函数。在ES6中， `import()` 方法会返回一个`Promise` 对象。当模块加载完成时，实现这个`Promise` 。
+`import()` 方法和`import` 语句能使用的参数是一样的，它使用起来类似于一个函数。在ES6中， `import()` 方法会返回一个`Promise` 对象。当模块加载完成时，实现这个`Promise` 。
+
+通过`import()` 方法，可以按需求加载模块，例如：
+
+```js
+button.addEventListener('click', () => {
+    import('./dialogBox.js')
+        .then(dialogBox => {
+            dialogBox.open();
+        })
+        .catch(error => {
+            /* Error handling */
+        })
+});
+```
+
+或者将需要加载的模块放在判断中：
+
+```js
+if(condition) {
+    import("module")
+}
+```
+
+还可以配合Promise的特性来加载模块：
+
+```js
+Promise.all([
+    import('./module1.js'),
+    import('./module2.js'),
+    import('./module3.js'),
+]);
+```
+
+在webpack 中，如果使用`import()` 函数来加载模块，webpack 在打包时会自动将模块拆分，并仅在需要使用时才载入这个模块。
+
+## 在React 中动态加载模块
+
+在React 中使用这个feature，需要合理地搭配生命周期函数。
+
+以上文所说的应用场景为例，它的基础用法大致如下：
+
+```js
+import React from 'react';
+import Lowlight from 'react-lowlight';
+import PropTypes from 'prop-types';
+import js from 'highlight.js/lib/languages/javascript';
+
+// 使用之前要先对模块进行注册
+Lowlight.registerLanguage('js', js);
+
+class CodeRenderer extends React.Component {
+  static propTypes = {
+    value: PropTypes.string,
+    language: PropTypes.string,
+  };
+
+  static defaultProps = {
+    value: '',
+    language: 'js',
+  };
+
+  render() {
+    return <Lowlight value={this.props.value} language={this.props.language} />;
+  }
+}
+
+export default CodeRenderer;
+```
 
 
 ## 参考
