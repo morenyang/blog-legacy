@@ -91,6 +91,8 @@ markdown:
     linkify: true
     typographer: true
     quotes: '“”‘’'
+  plugins:
+    - markdown-it-highlightjs
 
 gitalk:
   enable: true #用来做启用判断可以不用
