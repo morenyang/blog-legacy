@@ -1,5 +1,8 @@
 language: node_js
 node_js: --lts
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - export PATH="$HOME/.yarn/bin:$PATH"
 before_script:
   - git config user.name "Moren YANG"
   - git config user.email "morenyang88@gmail.com"
