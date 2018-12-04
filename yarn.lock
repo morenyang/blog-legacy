@@ -2135,7 +2135,8 @@ markdown-it-highlight@^0.2.0:
   resolved "https://registry.npmjs.org/markdown-it-highlight/-/markdown-it-highlight-0.2.0.tgz#6955a438eefed1cde54edd5ea6b9f6b186846fb1"
   integrity sha512-VpJBiZSa3beosuxpynyKY1y1Nd/axF95UdSyiPjGtI1IKa+WK46M1GvN5R3Tcf4ZQjCmrGdGls6UBP8P0MMuwg==
   dependencies:
-    highlight.js "^9.12.0"
+    highlight.js "^9.9.0"
+    lodash.flow "^3.1.0"
 
 markdown-it-ins@^2.0.0:
   version "2.0.0"
