@@ -32,9 +32,12 @@ main.index {
     margin: 0;
     text-transform: capitalize;
     color: $theme-red;
-    font: 600 26px/1.3 "Roboto", "Source Han Sans", "PingFang SC", "HanHei SC",
+    font-family: "Raleway", "Source Han Sans", "PingFang SC", "HanHei SC",
       "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
       sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.3;
     & + .article-meta {
       margin: $gutter/2 0;
       padding-top: 0px;
@@ -46,7 +49,7 @@ main.index {
 
   .article-link {
     color: $theme-red;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Raleway",
       "Helvetica Neue", Arial, sans-serif;
     line-height: 1.7;
     padding: $gutter/2 0 0;
@@ -56,6 +59,4 @@ main.index {
     font-size: 15px;
     color: $article-date-color;
   }
-
-
 }
