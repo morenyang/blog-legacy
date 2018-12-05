@@ -39,10 +39,11 @@
         var gitalk = new Gitalk({
             clientID: '<%= config.gitalk.clientID %>',
             clientSecret: '<%= config.gitalk.clientSecret %>',
-            id: window.location.pathname,
+            id: (window.location.pathname + '').substring(0,50),
             repo: '<%= config.gitalk.repo %>',
             owner: '<%= config.gitalk.owner %>',
-            admin: '<%= config.gitalk.admin %>'
+            admin: '<%= config.gitalk.admin %>',
+            distractionFreeMode: false
         })
     
         gitalk.render('gitalk-container')
