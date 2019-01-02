@@ -4,8 +4,7 @@
   height: 0;
   display: flex;
   justify-content: center;
-  font: 400 16px/1.5 'Raleway', 'Source Han Sans', 'PingFang SC', 'HanHei SC',
-    'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  font: 400 16px/1.5 'Raleway', $font-sans;
   text-transform: capitalize !important;
   transition: all ease-out .2s;
   background: #f6f6f6;

@@ -19,9 +19,7 @@ main.index {
 
   .article-entry {
     padding: 5px 0;
-    font-family: "Raleway", "Source Han Sans", "PingFang SC", "HanHei SC",
-      "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
-      sans-serif;
+    font-family: "Raleway", $font-sans;
     font-weight: 400;
     & > p {
       margin: 5px 0;

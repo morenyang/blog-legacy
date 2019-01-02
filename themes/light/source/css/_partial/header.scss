@@ -1,51 +1,54 @@
 header.header {
-    background: #f6f6f6 no-repeat center center;
-    background-size: cover;
-    height: $header-height;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    h1, h3 {
-      margin: 0 !important;
-    }
-  
-    // content
-    .content {
-      padding-bottom: 20px;
-      .layout {
-        margin: 0 auto;
-        max-width: 100%;
-        padding: 0 $gutter;
-        @media (min-width: 768px) {
-          max-width: 640px;
-        }
-        @media (min-width: 1024px) {
-          max-width: $main-content-width;
-        }
-        @media (min-width: 1200px) {
-          max-width: $main-content-width;
-        }
-      }
-      .title {
-        font: 400 40px/1.1 'Oxygen', 'Source Han Sans', 'PingFang SC', 'HanHei SC', 'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;;
-        @media ( min-width: 768px) {
-          font-size: 60px;
-          line-height: 1.5
-        }
-      }
-      .subtitle {
-        color: $subtitle-color;
-        font: 300 20px/1.4 'Raleway', 'Source Han Sans', 'PingFang SC', 'HanHei SC', 'Microsoft YaHei UI Light', 'Microsoft YaHei', Helvetica, Arial, sans-serif;;
-        @media ( min-width: 768px) {
-          font-size: 28px;
-        }
-      }
-    }
+  background: #f6f6f6 no-repeat center center;
+  background-size: cover;
+  height: $header-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  h1,
+  h3 {
+    margin: 0 !important;
   }
-  
-  header.light {
-    background-color: #393939;
+
+  // content
+  .content {
+    padding-bottom: 20px;
     .layout {
-      color: white;
+      margin: 0 auto;
+      max-width: 100%;
+      padding: 0 $gutter;
+      @media (min-width: 768px) {
+        max-width: 640px;
+      }
+      @media (min-width: 1024px) {
+        max-width: $main-content-width;
+      }
+      @media (min-width: 1200px) {
+        max-width: $main-content-width;
+      }
+    }
+    .title {
+      font: 400 40px/1.1 "Oxygen", "Source Han Sans", "PingFang SC", "HanHei SC",
+        "Microsoft YaHei UI Light", "Microsoft YaHei", Helvetica, Arial,
+        sans-serif;
+      @media (min-width: 768px) {
+        font-size: 60px;
+        line-height: 1.5;
+      }
+    }
+    .subtitle {
+      color: $subtitle-color;
+      font: 300 20px/1.4 "Raleway", $font-sans;
+      @media (min-width: 768px) {
+        font-size: 28px;
+      }
     }
   }
+}
+
+header.light {
+  background-color: #393939;
+  .layout {
+    color: white;
+  }
+}
