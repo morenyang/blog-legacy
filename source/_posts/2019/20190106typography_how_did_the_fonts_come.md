@@ -16,7 +16,11 @@ _前段时间回家和 [ewind](http://ewind.us/) 大神吹了吹水。交谈过�
 
 ![bitmap_font_and_true_type_font](/blog/images/190102/1.gif)
 
+点阵字体和矢量的TrueType字体的对比
+
 ![microsoft_true_type](/blog/images/190102/scale.gif)
+
+TrueType字体的一些特性
 
 到了后面 Adobe 发现自己的游戏玩不下去了，于是也和微软一起，开发了`OpenType`字体标准，也叫`Type2`，OpenType 兼容 TrueType 标准（也可以看做是 TrueType 的升级版），但有一些更强大的功能。
 
