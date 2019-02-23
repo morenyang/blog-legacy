@@ -69,7 +69,7 @@ printName(); // ChunChunMao
 
 由以上三条似乎可以推导出，执行`printName`函数时应该报引用错误。这和我们的实验结果似乎大相径庭。但是结果就摆在那儿了，我们只能去猜测是什么原因导致的——最合理的解释是——难道这是个bug！
 
-![](/blog/images/180426/1.jpg)
+![](/images/180426/1.jpg)
 
 合理的解释应该是：**`printName`可以访问原来函数（`printNameFactory`）中的作用域。**
 

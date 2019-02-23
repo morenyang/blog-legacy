@@ -9,7 +9,7 @@ tags:
 进入正题。今天在写一个文本输入框，我们平时写的能输入文字的标签一般有`input`和`textarea`两种。它们各有不同的属性，`input`只能显示单行文字，而`textarea`虽然可以显示多行，但是它的高度是不能随着文字的长度变化而自适应的——但是我又想要一个足够炫酷的可以自己适应文字高度的文本框。
 
 原本以为只能通过js搞定了，然而刷知乎的时候看到他评论的文本框标签和平时自己看到的很不一样——好了就是他了。
-<link href="/blog/static/editorable-placehodler.css" type="text/css" rel="stylesheet">
+<link href="/static/editorable-placehodler.css" type="text/css" rel="stylesheet">
 
 ### contenteditable属性
 先来介绍一下这个东西，简单来说，就是可以让你的元素内容是否可编辑。

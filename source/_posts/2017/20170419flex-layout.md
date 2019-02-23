@@ -266,7 +266,7 @@ flex-grow属性定义元素的放大比例，默认为0，即如果存在剩余�
 
 ##  常用例子
 <a name="examples"></a>
-<link href="/blog/static/css-flex-box-demo.css" type="text/css" rel="stylesheet">
+<link href="/static/css-flex-box-demo.css" type="text/css" rel="stylesheet">
 ### 栅格系统
 
 > 可以打开开发人员工具直接查看代码

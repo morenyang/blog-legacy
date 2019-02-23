@@ -17,7 +17,7 @@ tags:
 
 假定localStorage中存在token字段，即视为用户已登录，如果不存在则视为未登录状态。那么，前端页面在打开时大致需要做的事情如下：
 
-![](/blog/images/180205/1.svg)
+![](/images/180205/1.svg)
 
 对应的代码大致如下
 
@@ -58,7 +58,7 @@ class App extends React.Component {
 
 这个过程的流程大致是这样的：
 
-![](/blog/images/180205/2.svg)
+![](/images/180205/2.svg)
 
 这一部分代码可以参考上一篇文章[axios权限拦截](2017/20171112axios-auth-interceptors/)，大致如下：
 

@@ -36,21 +36,21 @@ date: 2019-01-11
       <tbody><tr align="center" valign="middle">
         <td align="center">
           <p><font size="+2">master outline</font></p>
-          <p><img src="/blog/images/190102/fig2-1-1.gif" alt="figure 10" align="absmiddle" width="130" height="140" naturalsizeflag="3"></p>
+          <p><img src="/images/190102/fig2-1-1.gif" alt="figure 10" align="absmiddle" width="130" height="140" naturalsizeflag="3"></p>
         </td>
         <td align="center">
           <p><font size="+2">1-scaled outline</font></p>
-          <p><img src="/blog/images/190102/fig2-1-2.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
+          <p><img src="/images/190102/fig2-1-2.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
         </td>
       </tr>
       <tr align="center" valign="middle">
         <td align="center">
           <p><font size="+2">2-grid-fitted outline</font></p>
-          <p><img src="/blog/images/190102/fig2-1-3.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
+          <p><img src="/images/190102/fig2-1-3.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
         </td>
         <td align="center">
           <p><font size="+2">3-raster image</font></p>
-          <p><img src="/blog/images/190102/fig2-1-4.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
+          <p><img src="/images/190102/fig2-1-4.gif" alt="figure 10" align="absmiddle" width="217" height="273" naturalsizeflag="3"></p>
         </td>
       </tr>
     </tbody>
@@ -58,7 +58,7 @@ date: 2019-01-11
 
 至于字体引擎内部的工作细节，例如如何对其网格、如何将点还原成轮廓、如何界定轮廓的哪一步分需要填充等，[文档](https://developer.apple.com/fonts/TrueType-Reference-Manual/RM02/Chap2.html)中花了很大的篇幅来介绍，本文不多描述。这里有一个要说明的点：在光栅化的时候，会把在轮廓上和轮廓内的像素中心点填充，但是如果轮廓占用了某一个或多个像素却没有穿越中心点（如下图），甚至一些特殊情况，则会根据一套规则来判断哪些像素点需要填充。光栅化的规则如下文所示。(例如下图中的情况会填充靠左侧的像素点。)
 
-![figure_1](/blog/images/190102/fig2-9.gif)
+![figure_1](/images/190102/fig2-9.gif)
 
 > Rule 1: If a pixel's center falls within or on the glyph outline, that pixel is turned on and becomes part of the bitmap image of the glyph.
 >
@@ -83,20 +83,20 @@ date: 2019-01-11
 
 假设某个字的字形是一个圆，要把这个字显示在屏幕上，就需要把轮廓叠加光栅网格上，然后根据一系列公式计算哪些像素的中心位于轮廓内或轮廓上，并将他们填充，而其他的则什么也不做。这样做可能导致一些不完美的后果。如下图所示，如果只是简单地将那些像素中心位于轮廓内或轮廓上的点填充，那么得到的形状既不是左右对称，又不是上下对称的。另外，如果你稍微移动一下圆的位置，又有可能得到另外的结果。
 
-![figure_2](/blog/images/190102/fig3-1.gif)
+![figure_2](/images/190102/fig3-1.gif)
 
 这一现象也容易影响字体的易读性。例如下图中所示，不受控制的光栅化可能会产生文字杆重 (stem weights) 不均、脱落、字符特征丢失、衬线不对称等问题。
 
-![figure_3](/blog/images/190102/fig3-2-1.gif)![figure_3](/blog/images/190102/fig3-2-2.gif)![figure_3](/blog/images/190102/img00306.gif)
+![figure_3](/images/190102/fig3-2-1.gif)![figure_3](/images/190102/fig3-2-2.gif)![figure_3](/images/190102/img00306.gif)
 
 在某些较高分辨率的情况下，为了准确的还原字体的原始设计，也可能导致渲染出来的文字清晰但不优雅的问题。例如下图中的字母e在对顶端只有单独一个像素，并且曲线的锯齿状不那么美观。
 
-![figure_4](/blog/images/190102/IF3.gif)
+![figure_4](/images/190102/IF3.gif)
 
 因此，TrueType会试图在光栅化之前对字形进行一些变形，使像素能够更准确的被填充来避免此类问题。如下图就是变形后的轮廓和光栅化的输出的结果。
 
-![figure_5](/blog/images/190102/IF4.gif)
-![figure_5](/blog/images/190102/IF5.gif)
+![figure_5](/images/190102/IF4.gif)
+![figure_5](/images/190102/IF5.gif)
 
 实际上这个光栅器渲染“美化”的过程需要字体制作者对字体进行“指示”。也就是说，字体制作者要告诉引擎如何把文字渲染得更好。下面是指示时要注意的几个要点。
 
@@ -120,7 +120,7 @@ date: 2019-01-11
 
 实际上，由于渲染引擎的不同，不同的操作系统、软件实际渲染出来的文字即使是同一字体同一字号，也会大相径庭。下图是字母a在不用浏览器、操作系统下在16px下显示的效果。
 
-![figure_6](/blog/images/190102/aaaa.png)
+![figure_6](/images/190102/aaaa.png)
 
 这里来聊一下我最常见的两种字体显示情况的差异—— Windows 和 Mac 系统上字体显示的差异。
 

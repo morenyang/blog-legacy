@@ -193,7 +193,7 @@ export default CodeRenderer;
 
 
 
-![](/blog/images/180928/1.png)
+![](/images/180928/1.png)
 
 这是首次打开时加载的内容。其中chunk6是当前页面的模块。
 
@@ -203,7 +203,7 @@ export default CodeRenderer;
 
 
 
-![](/blog/images/180928/2.png)
+![](/images/180928/2.png)
 
 查看调用栅可以看到是通过上述代码异步加载的模块。
 

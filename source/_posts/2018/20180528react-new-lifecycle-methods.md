@@ -1,6 +1,6 @@
 ---
 title: React新生命周期函数和迁移路径
-banner: /blog/images/180528/3.jpg
+banner: /images/180528/3.jpg
 date: 2018-05-28 
 tags:
 foreword: 简单介绍新的生命周期函数、说明旧的生命周期函数可能造成的一些问题以及如何迁移到新的生命周期函数。
@@ -21,10 +21,10 @@ foreword: 简单介绍新的生命周期函数、说明旧的生命周期函数�
 可以通过两张示意图对比一下新旧生命周期函数
 
 旧的React 生命周期示意图如下
-![](/blog/images/180528/2.png)
+![](/images/180528/2.png)
 
 新的React 生命周期示意图如下（[react-lifecycle-methods-diagram](https://github.com/wojtekmaj/react-lifecycle-methods-diagram/)）:
-![](/blog/images/180528/1.jpg)
+![](/images/180528/1.jpg)
 
 本文会简单介绍新的生命周期函数、说明旧的生命周期函数可能造成的一些问题以及如何迁移到新的生命周期函数。
 
