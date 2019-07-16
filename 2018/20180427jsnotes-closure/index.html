@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>JS学习笔记:闭包！闭包！ | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180427jsnotes-closure/">
+                    JS学习笔记:闭包！闭包！
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted April 27 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>之前我写过一篇关于介绍闭包的文章，这次去金山笔试也有两道题是和闭包有关的 <s>（我还也写错了一道，不过错误的地方和闭包没关系）</s>，所以今天再来聊一聊和闭包有关的东西。</p>
+<p>其实上一篇文章写的并不好，长篇大论了一番也没说清楚闭包的本质是什么。这次我尽量说得浅显易懂一点。</p>
+<h2>闭包从哪里来</h2>
+<p>闭包有两个很重要的关键词，一个是函数，一个是作用域。</p>
+<p>我们都知道，一般来说，JavaScript中语句能访问的作用域有它本身所在的作用域和它父级以上的作用域，例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> b = <span class="number">2</span>;</span><br><span class="line">  <span class="built_in">console</span>.log(a + b); <span class="comment">// 语句A</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo(); <span class="comment">// 3</span></span><br><span class="line"><span class="built_in">console</span>.log(b) <span class="comment">// ReferenceError: b is not defined 语句B 注意这里是引用错误而不是undefined 因为什么语句只会被提升到它所在的作用域中</span></span><br></pre></td></tr></table></figure>
+<p>上面的代码中，A处语句能访问的作用域为他所在的函数<code>foo()</code>的作用域和它的父级作用域（全局作用域），而B处语句只能访问它所在的作用域（全局作用域），而不能获取函数<code>foo()</code>作用域中的变量。</p>
+<p>OK，以上的内容大家应该都是认同的了。但是我们知道，对于JavaScript这个磨人的小妖精，函数是一个对象。我们可以在某一个函数中，把另一个函数作为返回值返回出来（例如工厂模式），就想下面这段代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printNameFactory</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`My Name is <span class="subst">$&#123;name&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> printMyName = printNameFactory(<span class="string">'Moren'</span>);</span><br><span class="line"><span class="keyword">var</span> printCatName = printNameFactory(<span class="string">'XiaoMaoMi'</span>);</span><br><span class="line"></span><br><span class="line">printMyName(); <span class="comment">// My Name is Moren</span></span><br><span class="line">printCatName(); <span class="comment">// My Name is XiaoMaoMi</span></span><br></pre></td></tr></table></figure>
+<p>到此为止我们的思路还是很和谐的，上面的代码应该很浅显易懂，我向<code>printNameFactory</code>方法传入我的名字，然后他返回一个方法给我，这个方法可以快捷的打印出我的名字。我们也无妨可以把这个方法改一改，让他变得更长，看起来更高级一点 <s>，让客户觉得我们更牛逼一点</s>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printNameFactory</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _name = name || <span class="string">'ChunChunMao'</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">print</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`My Name is <span class="subst">$&#123;_name&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> print;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> printName = printNameFactory();</span><br><span class="line">printName(); <span class="comment">// ChunChunMao</span></span><br></pre></td></tr></table></figure>
+<p>凭着感觉第一眼看好像这段函数没有什么问题，但是如果你仔细想一想，好像和我们之前说的内容有点不一样：</p>
+<ul>
+<li>现在<code>printName</code>的值应该是<code>function (){console.log('My Name is ${_name}')} // 这里由于编辑器限制没有办法打反引号 用引号代替</code></li>
+<li>现在<code>printName</code>所在的作用域是全局作用域</li>
+<li>现在<code>_name</code>所在的作用域是<code>printNameFactory</code>函数的作用域</li>
+</ul>
+<p>由以上三条似乎可以推导出，执行<code>printName</code>函数时应该报引用错误。这和我们的实验结果似乎大相径庭。但是结果就摆在那儿了，我们只能去猜测是什么原因导致的——最合理的解释是——难道这是个bug！</p>
+<p><img src="/images/180426/1.jpg" alt=""></p>
+<p>合理的解释应该是：<strong><code>printName</code>可以访问原来函数（<code>printNameFactory</code>）中的作用域。</strong></p>
+<p>那么问题又来了！按照正常的思路，<code>printNameFactory</code>这段函数执行完后，它的整个内部作用域应该被销毁，因为现在的引擎正常都会有相应的垃圾回收机制。也就是说，我们实验产生的结果表示：<strong>产生<code>printName</code>所指向函数的函数（即<code>printNameFactory</code>）执行时所产生的函数作用域并没有被销毁。</strong></p>
+<p>这个问题的正确答案是——闭包导致了刚才我们观察到的结果。<strong>当函数可以记住并访问所在的词法作用域时，就产生了闭包，即使函数是在当前的词法作用域之外执行。</strong></p>
+<h2>闭包的本质？</h2>
+<p>刚才我们已经看清楚并分析出了闭包产生的现象，但是肯定有人会问，闭包的本质到底是什么。</p>
+<p>还记得我们这一段文字最开始提到的闭包的两个关键词——函数和作用域吗——<strong>实际上，闭包是由函数以及创建该函数的词法环境（可以理解成作用域）组合而成。这个环境包含了闭包创建时所能访问的所有局部变量（也就是作用域中的所有变量）</strong>。</p>
+<p>这个概念可能有些抽象，回想刚才的那段代码，我把它简化一下——</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> a = <span class="number">1</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> bar;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> baz = foo(); <span class="comment">// 语句A</span></span><br><span class="line">baz(); <span class="comment">// 2 语句B</span></span><br></pre></td></tr></table></figure>
+<p>语句A执行后，其返回值<code>bar()</code>被赋值给了<code>baz</code>。因此当我们调用<code>baz()</code>的时候，可以理解为我们在调用<code>foo()</code>里面的<code>bar()</code>；</p>
+<p>拜闭包所赐，<code>foo()</code>执行后，其内部的词法环境（作用域）<s>得以续命</s>并没有被销毁，这个作用域可以供<code>bar()</code>在之后任何时间内调用。换句话说，<strong><code>bar()</code>一直持有对该词法环境的引用，这个引用就叫做闭包。</strong></p>
+<p>值得一提的是，无论使用何种方式对函数类型的值进行传递，当函数在别处调用时都可以观察到闭包。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> a = <span class="number">2</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">baz</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a); <span class="comment">// 2</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  bar(baz);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  fn(); <span class="comment">// fn -&gt; baz, baz 拥有foo()的作用域</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo();</span><br></pre></td></tr></table></figure>
+<p>当然，无论使用何种方式将内部函数传递到词法作用域之外，他都会持有对原始定义作用域的引用，无论在何处执行这个函数都会有闭包。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fn;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> a = <span class="number">2</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">baz</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a);</span><br><span class="line">  &#125;</span><br><span class="line">  fn = baz; <span class="comment">// 将baz分配给全局变量</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  fn(); <span class="comment">// fn -&gt; baz， 即使是在全局作用于依然有用对foo()作用域的引用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo();</span><br><span class="line">bar(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<h2>我好像在哪里用过</h2>
+<p>在我们平时编写的代码里，闭包的应用其实无处不在。例如一段延时执行的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printLater</span>(<span class="params">message</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _msg = message || <span class="string">''</span>;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span> <span class="title">print</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(_msg);</span><br><span class="line">  &#125;, <span class="number">5000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printLater(<span class="string">'Miao'</span>); <span class="comment">// 5秒后打印 Miao</span></span><br></pre></td></tr></table></figure>
+<p>这段代码将一个内部函数（<code>print</code>）传递给<code>setTimeout</code>。在代码运行后五秒，才会执行<code>print</code>函数，这时<code>print</code>函数中就带有<code>printLater</code>作用域的闭包，因此还保留有变量<code>_msg</code>的引用。</p>
+<p>除了<code>setTimeout</code>函数，在JavaScript中，基本上所有的非即时操作如定时器、事件监听、异步请求等，只要使用了回调函数，实际上都使用到了闭包。</p>
+<p>还有一道经典的前端题目，就是从1到10每隔一秒输出一个数字。大多数人的第一直觉是</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i);</span><br><span class="line">  &#125;, i * <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而实际情况是，这段程序会分10次每隔一秒输出一次11。这是因为在第一个<code>setTimeout</code>中的匿名函数（我们之后把这个函数称为<code>timer</code>）函数执行之前，for循环已经全部执行完了，此时i的值为11。而之后<code>timer</code>函数执行的时候，所带的作用域其实是共享的同一个作用域，因此实际上只有一个i。</p>
+<p>如果我们想要按照题目的设想输出，则需要给每一个<code>setTimeout</code>或者<code>time</code>构建一个封闭的私有的作用域和变量，因此我们需要这么写：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">  (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> j = i;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> <span class="title">timer</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(j);</span><br><span class="line">    &#125;, j * <span class="number">1000</span>)</span><br><span class="line">  &#125;)();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 改进一下</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">  (<span class="function"><span class="keyword">function</span>(<span class="params">j</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> <span class="title">timer</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(j);</span><br><span class="line">    &#125;, j * <span class="number">1000</span>)</span><br><span class="line">  &#125;)(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的代码中，我们构建了一个立即执行的代码块（IIFE），在for循环迭代时，IIFE会为每一个迭代都生成一个新的作用域，使得函数的回调可以将新的作用域封闭在每个迭代内部。</p>
+<h2>闭包与模块</h2>
+<p>利用闭包的特性，可以创造模块。</p>
+<p>我们拿刚才那个打印名字的代码为例。你通过<code>printNameFactory</code>创造出了一个可以随时随地打印自己名字的方法，但是你自恋的产品经理想要每天换一个名字，而傲娇的他又不想调用<code>printNameFactory</code>方法。这时候我们就可以用模块的方式来满足他的需求：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printNameFactory</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _name = name;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">changeName</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    _name = name;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">print</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`<span class="subst">$&#123;_name&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    changeName: changeName,</span><br><span class="line">    print: print</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> namePrinter = printNameFactory(<span class="string">'Moren'</span>);</span><br><span class="line">namePrinter.print(); <span class="comment">// Moren</span></span><br><span class="line">namePrinter.changeName(<span class="string">'YANG'</span>);</span><br><span class="line">namePrinter.print(); <span class="comment">// YANG</span></span><br><span class="line">namePrinter._name; <span class="comment">// undefined 语句A</span></span><br></pre></td></tr></table></figure>
+<p>在这个方式中，我们通过return，将模块中的一些方法暴露出来供外部使用。</p>
+<p>来分析一下这些代码。</p>
+<p>首先我们必须执行<code>printNameFactory</code>函数来创建一个模块实例。</p>
+<p>其次，这段函数执行后会返回一个Object供我们使用，这个Object中含有对内部函数的引用。同时我们保证函数的内部数据变量是隐藏且私有的状态，例如A处语句并不能访问到<code>namePrinter</code>中的<code>_name</code>变量。我们可以将这个对象类型的返回值看做本质上是模块的公共API。如果你不理解他们，你也可以把它们类比做Java中的<code>private</code>和<code>public</code>对变量和方法的影响。</p>
+<p>这个对象类型的返回值最终被赋值给外部变量<code>namePrinter</code>，以此我们可以通过他来访问API中的属性方法，例如<code>namePrint.print()</code>。</p>
+<p>当然我们并不是一定要从模块中返回一个实际的对象，你也可以直接返回一个内部函数，例如最初的那个<code>namePrintFactory</code>，或者更好的例子如jQuery。在jQuery中，<code>jQuery</code>和<code>$</code>就是jQ模块的一个公共API，但他们本身都是函数。</p>
+<p>你也可以通过IIFE的方式创建一个被立即调用的函数并生成相应模块：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> morenPrinter = (<span class="function"><span class="keyword">function</span> <span class="title">myPrinter</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _name = name || <span class="string">''</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">changeName</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    _name = name;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">print</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`<span class="subst">$&#123;_name&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    changeName: changeName,</span><br><span class="line">    print: print</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)(<span class="string">'Moren'</span>);</span><br><span class="line"></span><br><span class="line">morenPrinter.print(); <span class="comment">// Moren</span></span><br></pre></td></tr></table></figure>
+<p>这个例子中<code>myPrinter</code>会被立即调用，并将返回的对象传递给<code>MorenPrinter</code>。</p>
+<p>模块是我们在JavaScript中组织和使用代码最常用的模式，关于模块的概念其实还有很多可以学习的，下次单独开一篇文章来讨论。</p>
+<h2>小结</h2>
+<p>闭包对于JavaScript真的真的是一个非常重要的概念。只有了解闭包才能更好地运用JavaScript。总结起来，就是：</p>
+<ul>
+<li>函数会产生闭包；</li>
+<li>函数不论在什么位置，都持有对<strong>产生它的词法环境</strong>的引用，也就是说能访问这个词法环境中的变量。</li>
+</ul>
+<h3>参考</h3>
+<ul>
+<li>《你不知道的JavaScript上卷》第一部分第5章</li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">闭包 - MDN</a></li>
+</ul>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

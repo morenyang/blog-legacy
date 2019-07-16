@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>Grunt前端工具的配置入门 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2016/20160817work-with-grunt/">
+                    Grunt前端工具的配置入门
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted August 17 2016
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p><a href="http://gruntjs.com/" target="_blank" rel="noopener">Grunt</a>是比较流行的前端自动化构建工具。可以帮助我们自动完成例如CSS压缩、编译Less、js风格检查等工作，大大简化和减少前端的工作。<s>总之你只要知道这个是很牛逼的工具就行了！</s><a id="more"></a></p>
+<h2>安装Grunt</h2>
+<h3>安装前</h3>
+<p>Grunt和Grunt插件的安装和管理都基于npm。因此在安装Grunt前你需要先安装<a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a>，并保证它的版本在<code>0.8.0</code>以上。如果你已经装了nodejs，在安装前，最好先更新一下npm（可能需要<code>sudo</code>）：<code>npm update -g npm</code>。</p>
+<p><em>另注，国内网络链接npm容易出问题，可以用淘宝的<a href="https://npm.taobao.org/" target="_blank" rel="noopener">cnpm</a>镜像代替。安装cnpm:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<p><em>cnpm的功能和操作和npm一致，只需要把<code>npm</code>换成<code>cnpm</code>即可</em></p>
+<h3>安装grunt-cli</h3>
+<p>接着就可以安装grunt-cli了，在终端中输入以下命令（可能需要<code>sudo</code>）:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g grunt-cli</span><br></pre></td></tr></table></figure>
+<p>这样Grunt命令就会被安装到你系统的资源库中，下面就可以在项目中配置Grunt了。</p>
+<h2>在项目中安装配置Grunt</h2>
+<h3>准备配置文件</h3>
+<p>不论你是要讲Grunt配置到新项目或是已有项目中，都必须要准备两个文件：<code>package.json</code>和<code>Gruntfile.js</code>。<strong>注意大小写！</strong></p>
+<p>我们需要把这两个文件放到项目的根目录中，像这样：
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20160817-work-with-grunt1.png" alt=""></p>
+<p>两个文件都可以再Grunt官网中找到：<a href="http://gruntjs.com/getting-started#package.json" target="_blank" rel="noopener">package.json</a> / <a href="http://gruntjs.com/getting-started#an-example-gruntfile" target="_blank" rel="noopener">Gruntfile.js</a> 。</p>
+<h3>安装Grunt和插件</h3>
+<h4><code>package.json</code></h4>
+<p>稍微解释一下，<code>package.json</code>中包含的是npm包中各种所需模块以及项目的配置信息。通过完善<code>package.json</code>文件，我们可以让npm命令更好地为我们服务。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  //项目名称和版本</span><br><span class="line">  "name": "my-project-name",</span><br><span class="line">  "version": "0.1.0",</span><br><span class="line">  </span><br><span class="line">  //项目所需要的插件和版本</span><br><span class="line">  "devDependencies": &#123;</span><br><span class="line">    "grunt": "~0.4.5",</span><br><span class="line">    "grunt-contrib-jshint": "~0.10.0",</span><br><span class="line">    "grunt-contrib-nodeunit": "~0.4.1",</span><br><span class="line">    "grunt-contrib-uglify": "~0.5.0"</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置完<code>package.json</code>后，我们只需要打开终端，在项目文件夹中输入 <code>npm install</code> 即可安装Grunt和所需要的插件。</p>
+<p>当然，你也可以在终端中的项目文件夹下输入命令 <code>npm install &lt;module&gt; --save-dev</code> 来手动安装Grunt和插件。</p>
+<p>例如下面这行命令就可以安装Grunt模块：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install grunt --save-dev</span><br></pre></td></tr></table></figure>
+<p>或者通过下面这行命令安装less编译器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install grunt-contrib-less --save-dev</span><br></pre></td></tr></table></figure>
+<p><em>另注，插件和使用方法可以在<a href="http://gruntjs.com/plugins" target="_blank" rel="noopener">Grunt插件</a>页面中找到。</em></p>
+<h3>配置<code>Gruntfile.js</code></h3>
+<p>Gruntfile.js中存放的是Grunt工作时需要的配置文件，<s>通过这个文件告诉它要怎么帮助我们干活</s>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">grunt</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 这里是任务中插件的配置代码</span></span><br><span class="line">  <span class="comment">// Project configuration.</span></span><br><span class="line">  grunt.initConfig(&#123;</span><br><span class="line">    pkg: grunt.file.readJSON(<span class="string">'package.json'</span>),</span><br><span class="line">    uglify: &#123;</span><br><span class="line">      options: &#123;</span><br><span class="line">        banner: <span class="string">'/*! &lt;%= pkg.name %&gt; &lt;%= grunt.template.today("yyyy-mm-dd") %&gt; */\n'</span></span><br><span class="line">      &#125;,</span><br><span class="line">      build: &#123;</span><br><span class="line">        src: <span class="string">'src/&lt;%= pkg.name %&gt;.js'</span>,</span><br><span class="line">        dest: <span class="string">'build/&lt;%= pkg.name %&gt;.min.js'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 这里告诉他需要加载哪些插件</span></span><br><span class="line">  grunt.loadNpmTasks(<span class="string">'grunt-contrib-uglify'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 这里告诉它我们定义了哪些任务和任务需要调用哪些插件</span></span><br><span class="line">  <span class="comment">// Default task(s).</span></span><br><span class="line">  grunt.registerTask(<span class="string">'default'</span>, [<span class="string">'uglify'</span>]);</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>插件的配置代码可以在插件的主页中找到。</p>
+<p><strong>到此，Grunt的安装和配置就全部完成了，你需要做的只是在终端中的项目文件夹下敲入<code>grunt</code>命令即可。</strong></p>
+<h2>实例演示</h2>
+<h4><s>前面说的都是废话，如果看上面不懂直接从这里开始看就好</s></h4>
+<p>例如，我们现在需要配置一个压缩CSS的任务，我们只需要</p>
+<ol>
+<li>把相应的文件放在项目文件夹中</li>
+<li>安装所需的<a href="https://www.npmjs.com/package/grunt-contrib-cssmin" target="_blank" rel="noopener">cssminify</a>等插件</li>
+<li>配置Grunt任务</li>
+<li>执行Grunt任务</li>
+</ol>
+<h3>项目准备</h3>
+<p>如图，把项目文件和Grunt配置文件准备好，并通过npm安装好<code>grunt-cli</code>。</p>
+<p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20160817-work-with-grunt2.png" alt=""></p>
+<h3>安装所需插件</h3>
+<h4>1. 配置<code>package.json</code></h4>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  //项目名称和版本</span><br><span class="line">  "name": "project",</span><br><span class="line">  "version": "0.1.0",</span><br><span class="line">  </span><br><span class="line">  //项目所需要的插件和版本</span><br><span class="line">  "devDependencies": &#123;</span><br><span class="line">    "grunt": "~0.4.5",</span><br><span class="line">    "grunt-contrib-jshint": "~0.10.0",</span><br><span class="line">    "grunt-contrib-nodeunit": "~0.4.1",</span><br><span class="line">    //下面这行就是安装告诉npm我们要安装1.0.1版的cssmin插件</span><br><span class="line">    "grunt-contrib-cssmin": "~1.0.1"</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4>2. 通过npm安装需要的插件</h4>
+<p>这里为了快速我使用cnpm来安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cnpm install</span><br></pre></td></tr></table></figure>
+<p>如果安装没有出现问题，你的项目文件夹中应该会出现<code>node_modules</code>文件夹，用来存放npm安装的插件</p>
+<h3>配置Grunt任务</h3>
+<p>配置<code>Gruntfile.js</code>，这里我直接设置了压缩所有css文件。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params">grunt</span>) </span>&#123;</span><br><span class="line">    grunt.initConfig(&#123;</span><br><span class="line">        pkg: grunt.file.readJSON(<span class="string">'package.json'</span>),</span><br><span class="line">        <span class="comment">//这里写cssmin的配置（插件主页找得到）</span></span><br><span class="line">        cssmin: &#123;</span><br><span class="line">            target: &#123;</span><br><span class="line">                files: [&#123;</span><br><span class="line">                    expand: <span class="literal">true</span>,</span><br><span class="line">                    <span class="comment">//你需要压缩的css文件夹的路径</span></span><br><span class="line">                    cwd: <span class="string">'src/css'</span>,</span><br><span class="line">                    src: [<span class="string">'*.css'</span>, <span class="string">'!*.min.css'</span>],</span><br><span class="line">                    <span class="comment">//压缩后输出的文件夹路径</span></span><br><span class="line">                    dest: <span class="string">'dist/css'</span>,</span><br><span class="line">                    <span class="comment">//输出的文件名后缀</span></span><br><span class="line">                    ext: <span class="string">'.min.css'</span></span><br><span class="line">                &#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果有别的插件就在上面加个逗号，然后把配置文件写这里，以此类推</span></span><br><span class="line">    &#125;);</span><br><span class="line">    grunt.loadNpmTasks(<span class="string">'grunt-contrib-cssmin'</span>);</span><br><span class="line">    <span class="comment">//注册一个名字叫cssminify,执行cssmin的任务</span></span><br><span class="line">    grunt.registerTask(<span class="string">'cssminify'</span>, [<span class="string">'cssmin'</span>]);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>注意！任务名不要和插件名一样，就如不要以<code>cssmin</code>作为任务名</strong></p>
+<p>这里如果你需要一次完成例如压缩js又压缩css之类的任务，就可以注册一个新的任务，像这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grunt.registerTask(<span class="string">'minify'</span>, [‘uglifyjs’,<span class="string">'cssmin'</span>]);</span><br></pre></td></tr></table></figure>
+<h3>执行Grunt任务</h3>
+<p>特别简单，终端中在文件夹下敲入<code>grunt &lt;任务名&gt;</code>即可，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grunt cssminify</span><br></pre></td></tr></table></figure>
+<p>如果没有问题，终端中会出现类似的提示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ grunt cssminify</span><br><span class="line">Running <span class="string">"cssmin:target"</span> (cssmin) task</span><br><span class="line">&gt;&gt; 1 file created. 1 kB → 805 B</span><br><span class="line"></span><br><span class="line">Done, without errors.</span><br></pre></td></tr></table></figure>
+<p>这时，我们就可以在输出文件夹中看到输出的压缩后的css文件了。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20160817-work-with-grunt3.png" alt=""></p>
+<h2>小结</h2>
+<p>其实Grunt的配置并不难，当然这里只是一个简单入门，还有很多强大的和深入的功能可以去发掘。除了<a href="http://gruntjs.com/" target="_blank" rel="noopener">Grunt官网</a>，这里还有一个<a href="http://www.gruntjs.net/" target="_blank" rel="noopener">Grunt中文文档</a>可以参考。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

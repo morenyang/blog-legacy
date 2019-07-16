@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>在React中动态加载模块 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180928dynamic-loading-modules-in-react/">
+                    在React中动态加载模块
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted September 28 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <h2>起因</h2>
+<p>在React 项目中常会遇到打包出来的bundle 过大而引发的页面加载速度过慢或是性能问题。因此，如果能够将使用的模块按需在使用时动态加载，就可以很大程度地减少资源浪费并优化首次加载速度。</p>
+<p>例如，在使用highlight.js 时，官方为我们提供了176种语言的支持，每种语言支持包的大小从1K到几十K不等，一次性全部加载就需要load 1MB的资源。而如果采用按需加载的方式，每次就只需要load 几K的资源。想想就很酷。</p>
+<p>在webpack v2 之后的版本中，可以使用 <code>import()</code> 来完成代码分割和动态载入。借助这个feature ，可以实现上文预想的功能。</p>
+<h2>关于 import()</h2>
+<p>JavaScript 中的模块是纯静态的。使用<code>import</code> 和<code>export</code> 的语句必须放在模块的顶层，它们会在 <strong>编译</strong> 时执行（而不是运行时）。因此，如果你在JS代码编译之后修改了module 中的内容，即使还没有用到它，也无法对运行中的程序造成影响。另外，如果想把<code>import</code> 语句放在<code>if</code> 代码块中或函数也是不行的，这么做会报语法错误。</p>
+<p>这个feature 带来的好处是可以提高编译器的执行效率，但是无法在运行时加载模块。</p>
+<p>为了解决这个问题，有一个<a href="https://github.com/tc39/proposal-dynamic-import" target="_blank" rel="noopener">提案</a>建议引入<code>import()</code> 方法来进行动态加载。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> specifier = <span class="string">'./module.js'</span>;</span><br><span class="line"><span class="keyword">import</span>(specifier)</span><br><span class="line">  .then(<span class="function"><span class="params">someModule</span> =&gt;</span> someModule.foo());</span><br></pre></td></tr></table></figure>
+<p><code>import()</code> 方法和<code>import</code> 语句能使用的参数是一样的，它使用起来类似于一个函数。在ES6中， <code>import()</code> 方法会返回一个<code>Promise</code> 对象。当模块加载完成时，实现这个<code>Promise</code> 。</p>
+<p>通过<code>import()</code> 方法，可以按需求加载模块，例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">button.addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">'./dialogBox.js'</span>)</span><br><span class="line">        .then(<span class="function"><span class="params">dialogBox</span> =&gt;</span> &#123;</span><br><span class="line">            dialogBox.open();</span><br><span class="line">        &#125;)</span><br><span class="line">        .catch(<span class="function"><span class="params">error</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">/* Error handling */</span></span><br><span class="line">        &#125;)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>或者将需要加载的模块放在判断中：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(condition) &#123;</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">"module"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还可以配合Promise的特性来加载模块：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Promise</span>.all([</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">'./module1.js'</span>),</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">'./module2.js'</span>),</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">'./module3.js'</span>),</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<p>在webpack 中，如果使用<code>import()</code> 函数来加载模块，webpack 在打包时会自动将模块拆分，并仅在需要使用时才载入这个模块。</p>
+<h2>在React 中动态加载模块</h2>
+<p>在React 中使用<code>import()</code> 对模块动态加载，需要合理地搭配生命周期函数。</p>
+<p>以上文所说的应用场景为例，它的基础用法大致如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> Lowlight <span class="keyword">from</span> <span class="string">'react-lowlight'</span>;</span><br><span class="line"><span class="keyword">import</span> PropTypes <span class="keyword">from</span> <span class="string">'prop-types'</span>;</span><br><span class="line"><span class="keyword">import</span> js <span class="keyword">from</span> <span class="string">'highlight.js/lib/languages/javascript'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用之前要先对模块进行注册</span></span><br><span class="line">Lowlight.registerLanguage(<span class="string">'js'</span>, js);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CodeRenderer</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> propTypes = &#123;</span><br><span class="line">    value: PropTypes.string,</span><br><span class="line">    language: PropTypes.string,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    value: <span class="string">''</span>,</span><br><span class="line">    language: <span class="string">'js'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Lowlight</span> <span class="attr">value</span>=<span class="string">&#123;this.props.value&#125;</span> <span class="attr">language</span>=<span class="string">&#123;this.props.language&#125;</span> /&gt;</span>;</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">export default CodeRenderer;</span></span><br></pre></td></tr></table></figure>
+<p>为了动态加载模块，需要修改成如下的样子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> Lowlight <span class="keyword">from</span> <span class="string">'react-lowlight'</span>;</span><br><span class="line"><span class="keyword">import</span> PropTypes <span class="keyword">from</span> <span class="string">'prop-types'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> supportLanguages = &#123;</span><br><span class="line">  js: <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'highlight.js/lib/languages/javascript'</span>),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CodeRenderer</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> propTypes = &#123;</span><br><span class="line">    value: PropTypes.string,</span><br><span class="line">    language: PropTypes.string,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> defaultProps = &#123;</span><br><span class="line">    value: <span class="string">''</span>,</span><br><span class="line">    language: <span class="string">'js'</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  state = &#123;</span><br><span class="line">    displayLanguage: <span class="string">''</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> getDerivedStateFromProps(nextProps, prevState) &#123;</span><br><span class="line">    <span class="keyword">const</span> language = nextProps.language,</span><br><span class="line">      displayLanguage = prevState.displayLanguage;</span><br><span class="line">    <span class="keyword">if</span> (language === displayLanguage) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果新的language 已被注册， 直接在下一次render 中使用该language渲染</span></span><br><span class="line">    <span class="keyword">if</span> (Lowlight.hasLanguage(language)) &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123; <span class="attr">displayLanguage</span>: language &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 否则按没有指定language 进行渲染</span></span><br><span class="line">    <span class="keyword">return</span> &#123; <span class="attr">displayLanguage</span>: <span class="string">''</span> &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  loadLanguageSupport = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">     <span class="comment">// 如果没有指定language 并且highlightjs的库中有对这个language提供支持</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.state.displayLanguage &amp;&amp; supportLanguages.hasOwnProperty(<span class="keyword">this</span>.props.language)) &#123;</span><br><span class="line">      <span class="keyword">const</span> syntaxBundle = supportLanguages[<span class="keyword">this</span>.props.language];</span><br><span class="line">      syntaxBundle().then(<span class="function"><span class="params">bundle</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 注册新的 language</span></span><br><span class="line">        Lowlight.registerLanguage(<span class="keyword">this</span>.props.language, bundle);</span><br><span class="line">        <span class="comment">// 更新state</span></span><br><span class="line">        <span class="keyword">this</span>.setState(&#123; <span class="attr">displayLanguage</span>: <span class="keyword">this</span>.props.language &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.loadLanguageSupport();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidUpdate() &#123;</span><br><span class="line">    <span class="keyword">this</span>.loadLanguageSupport();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.state.displayLanguage)</span><br><span class="line">      <span class="keyword">return</span> (</span><br><span class="line">        &lt;pre&gt;</span><br><span class="line">          &lt;code&gt;&#123;<span class="keyword">this</span>.props.value&#125;&lt;<span class="regexp">/code&gt;</span></span><br><span class="line"><span class="regexp">        &lt;/</span>pre&gt;</span><br><span class="line">      );</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Lowlight</span> <span class="attr">value</span>=<span class="string">&#123;this.props.value&#125;</span> <span class="attr">language</span>=<span class="string">&#123;this.state.displayLanguage&#125;</span> /&gt;</span>;</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">export default CodeRenderer;</span></span><br></pre></td></tr></table></figure>
+<p>这里主要做了几件事：</p>
+<ul>
+<li>将语言支持的模块变成了一个function (<code>import('highlight.js/xxx')</code>) ， webpack 会将它自动拆分；</li>
+<li>当state 中的<code>displayLanguage</code> 为空时，视为没有载入这个语言的支持模块；</li>
+<li>在<code>componentDidMount</code> 中和<code>componentDidUpdate</code> 中，载入所需要的语言支持模块并将其注册，然后再更新<code>state</code> 并重新render。</li>
+<li>在<code>render</code>时，如果没有载入当前语言的支持模块，则按照普通的文本进行渲染。当然也可以在<code>shouldComponentUpdate</code> 中设置减少重新渲染的次数以提升性能。</li>
+</ul>
+<p>由于将没有注册的language 作为props传入<code>Lowlight</code> 组件时会报错，因此更新state（包括<code>setState</code> 或在<code>getDerivedStateFromProps</code> 中返回新的值）这个动作必须发生在<code>Lowlight.registerLanguage</code> 之后。由于无法预测何时可以加载完成并注册语言的支持包，因此不能将<code>import()</code> 的异步动作放在<code>getDerivedStateFromProps</code>  中。</p>
+<p>使用Chrome调试台查看一下效果。</p>
+<p><img src="/images/180928/1.png" alt=""></p>
+<p>这是首次打开时加载的内容。其中chunk6是当前页面的模块。</p>
+<p>然后手动修改markdown中代码块的语言为<code>java</code> ，可以看到载入了一个新的chunk</p>
+<p><img src="/images/180928/2.png" alt=""></p>
+<p>查看调用栅可以看到是通过上述代码异步加载的模块。</p>
+<h2>最后</h2>
+<p>在React 中动态加载模块可以让你的Application 运行起来更有效率。其实动态加载模块还可以用在页面拆分、组件异步加载等功能上。可以参考<a href="https://serverless-stack.com/chapters/code-splitting-in-create-react-app.html" target="_blank" rel="noopener">这篇文章</a> 。同时，在npm上还有很多用于组件异步加载的package 可以直接使用。</p>
+<p>另外，如果你使用的是webpack v1, 可能需要使用<a href="https://github.com/airbnb/babel-plugin-dynamic-import-webpack" target="_blank" rel="noopener">babel-plugin-dynamic-import-webpack</a> 这个package将<code>import()</code> 转为<code>require.ensure。</code></p>
+<h2>参考</h2>
+<ul>
+<li><a href="https://webpack.js.org/guides/code-splitting/" target="_blank" rel="noopener">https://webpack.js.org/guides/code-splitting/</a></li>
+<li><a href="http://2ality.com/2017/01/import-operator.html" target="_blank" rel="noopener">http://2ality.com/2017/01/import-operator.html</a></li>
+<li><a href="https://serverless-stack.com/chapters/code-splitting-in-create-react-app.html" target="_blank" rel="noopener">https://serverless-stack.com/chapters/code-splitting-in-create-react-app.html</a></li>
+</ul>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

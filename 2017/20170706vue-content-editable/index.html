@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>利用ContentEditable属性在VUE下写一个输入框 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20170706vue-content-editable/">
+                    利用ContentEditable属性在VUE下写一个输入框
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted July 06 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>上个月好像没更博客，因为期末考比较忙。<s>毕竟我这种靠着聪明才智活着的人想要在一群勤奋刻苦的人中间生存下来也不容易。</s></p>
+<p>进入正题。今天在写一个文本输入框，我们平时写的能输入文字的标签一般有<code>input</code>和<code>textarea</code>两种。它们各有不同的属性，<code>input</code>只能显示单行文字，而<code>textarea</code>虽然可以显示多行，但是它的高度是不能随着文字的长度变化而自适应的——但是我又想要一个足够炫酷的可以自己适应文字高度的文本框。</p>
+<p>原本以为只能通过js搞定了，然而刷知乎的时候看到他评论的文本框标签和平时自己看到的很不一样——好了就是他了。</p>
+<link href="/static/editorable-placehodler.css" type="text/css" rel="stylesheet">
+<h3>contenteditable属性</h3>
+<p>先来介绍一下这个东西，简单来说，就是可以让你的元素内容是否可编辑。</p>
+<p>例如下面这一段文字就可以编辑：</p>
+<p contenteditable="true" style="border: 1px solid #eee; padding: 5px 8px">这是一个可编辑的段落。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">contenteditable</span>&gt;</span>这是一个可编辑的段落。<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>你往里面输入的文字，会被直接写入到网页的HTML代码中。因此如果我们要获取里面的内容，就可以用 <code>dom.innerText</code> 来获取。因此当我们打了一段很长的文字时，其实只是相当于在div中加了很长的文字而已。</p>
+<div contenteditable="true" placeholder="苟利国家生死以，岂因祸福避趋之">人呐就都不知道，自己就不可以预料。一个人的命运啊，当然要靠自我奋斗，但是也要考虑到历史的行程。我绝对不知道，我作为一个上海市委书记怎么把我选到北京去了，所以邓小平同志跟我讲话，说“中央都决定啦，你来当总书记”，我说另请高明吧。我实在我也不是谦虚，我一个上海市委书记怎么到北京来了呢？但是呢，小平同志讲“大家已经研究决定了”，所以后来我就念了两首诗，叫“苟利国家生死以，岂因祸福避趋之”，那么所以我就到了北京。</div>
+<p>我们可以把<code>input</code>标签的常用样式套用在<code>contenteditable</code>属性的元素里。例如<code>outline</code>样式。</p>
+<h4>实现placeholder</h4>
+<p>单单一个空白的文本框可能不能满足我们的欲望。肯定有人会想如何给这个文本框加上placeholder。虽然原生不支持placeholder属性，但是我们可以可以用一些奇技淫巧来满足这个要求。</p>
+<p>我们按照往常的写法把placeholder属性写进元素里。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">contenteditable</span>=<span class="string">"true"</span> <span class="attr">placeholder</span>=<span class="string">"添加你的评论"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后通过css来加上placeholder</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">div</span><span class="selector-attr">[contentEditable]</span><span class="selector-pseudo">:empty</span><span class="selector-pseudo">:not(</span><span class="selector-pseudo">:focus)</span><span class="selector-pseudo">:before</span> &#123;</span><br><span class="line">  <span class="attribute">content</span>: <span class="built_in">attr</span>(placeholder);</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#aaa</span>;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">300</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>效果大概是这样</p>
+<div class="input-placeholder" contenteditable="true" placeholder="添加你的评论"></div>
+<h4>实现maxlength</h4>
+<p>可能还有一些同学想要顺带实现maxlength的效果，嗯…
+<s>好好用js解决吧</s> 拖出去续了！</p>
+<h3>VUE中实现双向数据绑定</h3>
+<p>嗯用过vue的人都会常常用到<code>v-model</code>这个语法糖。然而只能在<code>input</code>、<code>textarea</code>、<code>select</code>标签和自定义组件中直接使用。（理论上来讲应该是带有value属性的元素）。因此在这里我们要手写一遍数据绑定。</p>
+<p>关于<code>v-model</code>的介绍，参考使用<a href="https://cn.vuejs.org/v2/guide/components.html#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E8%A1%A8%E5%8D%95%E8%BE%93%E5%85%A5%E7%BB%84%E4%BB%B6" target="_blank" rel="noopener">自定义事件的表单输入组件</a>
+里面给出的解释是</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"something"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>等价于</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-bind:value</span>=<span class="string">"something"</span> <span class="attr">v-on:input</span>=<span class="string">"something=$event.target.value"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>因此参照上面的写法，我们也可以自己写一组双向数据绑定:</p>
+<p><strong>html</strong></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">contenteditable</span> <span class="attr">v-text</span>=<span class="string">"content"</span> @<span class="attr">input</span>=<span class="string">"handleInput"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>js</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span>&#123;</span><br><span class="line">    data() &#123;</span><br><span class="line">        <span class="keyword">return</span>&#123;</span><br><span class="line">            content: <span class="string">''</span>        </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">        handleInput($event) &#123;</span><br><span class="line">            <span class="keyword">this</span>.content = $event.target.innerText;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 下面这段代码可以限制最大长度</span></span><br><span class="line">            <span class="keyword">this</span>.content = <span class="keyword">this</span>.content.substring(<span class="number">0</span>,<span class="number">100</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然你也可以把它单独做成一个组件来引用，不过我觉得两者效率差不多。</p>
+<p>以上就是用vue实现一个可以自己改变高度的文本框的全部方法介绍啦。过几天就出成绩了希望期末考好点hhhh</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

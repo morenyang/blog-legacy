@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>JS学习笔记:MV*都是些啥 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180513jsnotes-mvx/">
+                    JS学习笔记:MV*都是些啥
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted May 13 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>MV*是目前最常用的代码结构组织方式。在我们最传统的编码中，我们很容易就把数据、视图操作和业务逻辑杂糅在一起，导致代码繁杂、可阅读性降低，影响开发效率等问题。后来聪明的人们设计出了MVC、MVP、MVVM的代码组织结构，让我们能够以更高的开发效率进行开发和管理代码。今天这篇文章将简单的介绍这三种框架，以及介绍他们的相同和不同点。</p>
+<h2>Model 和 View</h2>
+<p>在这三种模式中，M和V所指的内容是一致的—— M 代指 Model，即数据模型，用来处理程序中的数据逻辑； V 代指 View ，用来进行数据展示，可以理解成一个界面模板。</p>
+<p>MV*模式最大的意义在于将 Model 和 View 的模块化。</p>
+<h2>MVC</h2>
+<p>MVC 模型是架构最简单明了也是大家可能最熟悉的模型了。这个概念在1979年被提出。在这个模式中，Controller 像一个大管家，负责响应用户动作、更新 Model 中的数据、并让 View 获取到最新的数据。<strong>（也就是说，视图获取数据、更新和绘制的逻辑都会在Controller中实现。）</strong></p>
+<p>它的业务流程大致是： View 触发事件 -&gt; Controller 收到事件并处理业务 -&gt; 更新 Model 中的数据 -&gt; (Controller) 依据 Model 更新 View 上的数据</p>
+<p>在这个模式中：</p>
+<ul>
+<li>Controller 负责几乎所有的业务逻辑、数据逻辑和视图更新逻辑和细节</li>
+<li>在 Controller 中 View 会接触和调用到 Model</li>
+<li>Model 不需要了解 Controller 和 View 中的细节</li>
+</ul>
+<h2>MVP</h2>
+<p>MVP 指的是 Model-View-Presenter (模型-视图-协调者)模型，它可以认为是MVC的一个改进版。在这个模式中，视图和模型完全解耦。View 中的每个组件都知道如何渲染从 Model 中得来的数据和响应用户的操作， Presenter 作为 Model 和 View 的中间人，负责控制 Model 修改并将最新的 Model 传递给 View 。<strong>（换句话说，Presenter会将处理完的 Model 一股脑地扔给 View ，由 View 负责根据数据画视图。）</strong></p>
+<p>它的业务流程大概是： View 触发事件并传递给 Presenter -&gt; Presenter 更新 Model -&gt; Presenter 将 Model 传递给 View -&gt; View 根据 Model 渲染出界面</p>
+<p>在这个模式中：</p>
+<ul>
+<li>View 不会直接接触到业务中的 Model ，只会根据收到的 Model 渲染出界面</li>
+<li>Presenter 拥有 Model ，与 View 通过某个接口相互传递动作或数据。</li>
+<li>Model 和 View 相互解耦</li>
+</ul>
+<p>MVP这个模式解决的问题主要是数据频繁更新时，更新界面麻烦的问题。它定义了 Presenter 和 View 之间的接口，让界面和业务逻辑可以更独立的进行开发。</p>
+<h2>MVVM</h2>
+<p>MVVM 指的是 Model-View-ViewModel （模型-视图-视图模型）模型。在这个模式中， View 是无状态的，ViewModel 持有它的数据，并且根据这些数据实时调整和更新视图， View 和 ViewModel 直接交互。<strong>（也可以理解成，ViewModel 实现了其 <em>内部数据</em> 和视图的绑定。）</strong> 同时， ViewModel 也会监听 View 上触发的动作，并根据动作更新 Model 。</p>
+<p>它的业务流程大致是： ViewModel 监听到 View 上的用户操作 -&gt; ViewModel 根据操作更新数据 -&gt; 如果有需要则 ViewModel 会更新 Model -&gt; Model 更新后通知 ViewModel -&gt; ViewModel 根据 Model 更新自己的数据 -&gt; ViewModel 根据数据重新渲染 View</p>
+<p>在这个模式中：</p>
+<ul>
+<li>View 不保存任何状态信息，也不需要了解 ViewModel 的实现细节</li>
+<li>View 渲染出的状态实际上与 ViewModel 中的某个类中的状态所对应</li>
+<li>ViewModel 持有 Model ，并且清楚业务逻辑</li>
+</ul>
+<p>但是要注意的是，MVVM这个模型强调的不是 View 和 Model 的相互解耦，其实根据其实现方法也注定了他们两个不会有任何关联性，其注重的是 ViewModel 和 View 的数据绑定——也就是说它简化了业务与界面的依赖关系，同时也由命令式编程转换成了非命令式编程。</p>
+<h2>最后</h2>
+<p>讲真这类介绍抽象的开发模式的文章真的很难写，这里我也只是简单的介绍了一下MVC、MVP、MVVM三种模式的不同和他们面对不同问题的解决思路。在前端，目前其实还有更多组织模式——例如 Flux 的数据组织模式、Model-View-Update 的模式等等。其实他们都是为了更好的控制界面渲染、动作触发、数据分发而出现的，如果有兴趣的同学可以看看本文所参考的文章，或者自行 Google 一下。</p>
+<h3>参考</h3>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/26799645" target="_blank" rel="noopener">GUI 应用程序架构的十年变迁：MVC、MVP、MVVM、Unidirectional、Clean</a></li>
+<li><a href="https://www.zhihu.com/question/21851341/answer/20062573" target="_blank" rel="noopener">MVC和三层架构有何区别和联系？</a></li>
+<li><a href="https://www.zhihu.com/question/20148405/answer/23813147" target="_blank" rel="noopener">你对MVC、MVP、MVVM 三种组合模式分别有什么样的理解？</a></li>
+<li>《JavaScript 设计模式》 第38章、第39章、第40章</li>
+</ul>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

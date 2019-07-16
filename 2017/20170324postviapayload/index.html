@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>一不小心POST了一个Payload | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20170324postviapayload/">
+                    一不小心POST了一个Payload
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted March 24 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>事情是这样的，那天我和同学正在测试接口，然后我写的方法是这样的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> axois <span class="keyword">from</span> <span class="string">'axios'</span>;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    UpdateImageUrl(data)&#123;</span><br><span class="line">        <span class="keyword">let</span> url = <span class="string">'/api/image/updateUrl?id='</span> + data.id;</span><br><span class="line">        <span class="keyword">return</span> axios.post(url, data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而同学却一直很坚定的告诉我后台没有收到数据，于是我打开了开发工具的Network，原本以为传错了什么参数，<strong>然而却发现并没有什么问题</strong></p>
+<p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20170324post-request-payload-1.png" alt=""></p>
+<p>仔细对了一下发出去的内容，确实没什么错，但是感觉它和平时我们POST数据的样子确实有一些区别。直觉告诉我问题一定是出在这里。</p>
+<p>我们平时使用POST请求上传表单时，发出去的内容，抬头因该是<code>Form Data</code>，它的请求格式应该是类似于GET请求的URL格式，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=xiaoming&amp;age=18</span><br></pre></td></tr></table></figure>
+<p>然而在这里，抬头却变成了Request Payload。Google了一下Payload， 大意是POST请求时，所携带的有效数据。因为我们没有在指定XHR请求的<code>Content-Type</code>为<code>application/x-www-form-urlencode</code>，因此在发送XHR请求时不会对其中的内容进行处理成表单数据，而是直接把整个JSON对象传了上去。</p>
+<p>所以有什么好的解决方法呢</p>
+<p>一种是在http请求的头部指定Content-Type，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import axios from &apos;axios&apos;</span><br><span class="line">function post(data)&#123;</span><br><span class="line">    let url = &apos;/api/fakeapi&apos;;</span><br><span class="line">    return axios.post(url, data, &#123;headers: &#123;`Content-Type`: `application/x-www-form-urlencode`&#125;&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者是在发出请求前将JSON数据改为urlencode格式，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">import axios from &apos;axios&apos;</span><br><span class="line">import qs from &apos;qs&apos;</span><br><span class="line">function post(data)&#123;</span><br><span class="line">    let url = &apos;/api/fakeapi&apos;;</span><br><span class="line">    return axios.post(url, qs.stringify(data));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>嗯就说这么多吧。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

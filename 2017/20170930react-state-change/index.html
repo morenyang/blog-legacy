@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>React笔记:响应状态变化 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20170930react-state-change/">
+                    React笔记:响应状态变化
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted September 30 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>最近在上手尝试React框架。其实从Vue切换过来，虽然遇到很多坑，但是并没有想象中的那么困难，组件的整体思路是有一些相似之处的。个人觉得React相比Vue组织起来更严格一些，虽然说写起来比较累，动不动就会给你报个错误，但是也减少了你写出来的代码犯错的概率。</p>
+<p>当然相比Vue这种MVVM框架，React这类纯View层框架必须要你自己手动管理数据和状态。<a id="more"></a></p>
+<h3>Vue中响应状态变化的方法</h3>
+<p>例如在Vue中会经常用到的<code>watch</code>方法，在React中就没有那么方便实现。我们可以利用<code>watch</code>方法直接监听<code>data</code>（在React中算作<code>state</code>）、<code>props</code>或是Router中的数据，并对数据的更改做出一些响应。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  watch: &#123;</span><br><span class="line">    <span class="string">"$route.params.id"</span>(val)&#123;</span><br><span class="line">      <span class="keyword">this</span>.fetchData()</span><br><span class="line">        .then(<span class="function"><span class="params">res</span> =&gt;</span>&#123;</span><br><span class="line">          <span class="comment">// do something</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3>React中响应状态变化的方法</h3>
+<h4>响应state变化</h4>
+<p>而在React中，我们不可能像Vue一样直接拿出<code>$router</code>这样的顶级变量。而对于state这类组件中的状态，我们可以直接用<code>render()</code>方法对其作出响应：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  render()&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.state.number &gt; <span class="number">1</span>)&#123;</span><br><span class="line">      <span class="keyword">return</span> (<span class="xml"><span class="tag">&lt;<span class="name">span</span>&gt;</span>+1s<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> (<span class="xml"><span class="tag">&lt;<span class="name">span</span>&gt;</span>-1s<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4>响应props变化</h4>
+<p>但是对于<code>props</code>这类爸爸给我们的数据，我们则需要通过另外一种方法来对他进行响应，这里就需要用到<code>componentWillReceiveProps()</code>方法。</p>
+<p><code>componentWillReceiveProps(nextProps)</code>属于React的生命周期函数。它的调用仅在收到新的props之后。新的props会被存放在<code>nextProps</code>变量里。收到变量以后，你可以对它进行一些处理并把处理后的数据放到<code>state</code>里，也可以把<code>nextProps</code>和<code>this.props</code>进行一番比较，在作出响应。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">    <span class="keyword">if</span>(nextProps.speed &gt; <span class="keyword">this</span>.props.speed) &#123;</span><br><span class="line">      <span class="keyword">this</span>.setState(&#123;<span class="attr">speed</span>: nextProps.speed&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>现在香港记者的速度是&#123;this.state.speed&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或是你使用React Router的时候，就可以使用这个方法来响应参数的变化：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextProps.match.params.id !== <span class="keyword">this</span>.props.match.params.id) &#123;</span><br><span class="line">      <span class="keyword">this</span>.fetchData(&#123;<span class="attr">id</span>: nextProps.match.params.id&#125;)</span><br><span class="line">        .then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">// do something...</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>参考</p>
+<p><a href="https://reactjs.org/docs/react-component.html#componentwillreceiveprops" target="_blank" rel="noopener">https://reactjs.org/docs/react-component.html#componentwillreceiveprops</a></p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

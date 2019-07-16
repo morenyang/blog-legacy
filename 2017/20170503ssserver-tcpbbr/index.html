@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>搭建 Shadowsocks 服务器并开启 TCP BBR 加速 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20170503ssserver-tcpbbr/">
+                    搭建 Shadowsocks 服务器并开启 TCP BBR 加速
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted May 03 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>最近感觉自己搭的SS延迟高而且速度慢，尽管我装了一个Net-Speeder开启了无脑双倍TCP包发送，然而还是没有得到太多的缓解。</p>
+<p>然后今天就买了一个新的VPS来搭SS服务器，顺手把BBR加速给开起来，测试了一下延迟确实有明显的缓解。<a id="more"></a></p>
+<h4>TCP BBR</h4>
+<p>先来简单说一下这个东西吧，就是Google开发的新的拥塞控制算法，据说是用在YouTube上，并且在去年9月开源并且现在已经集成到Linux 4.9-rc8之后版本 的内核中。</p>
+<p><a href="https://groups.google.com/forum/#!forum/bbr-dev" target="_blank" rel="noopener">官方论坛</a></p>
+<p><a href="https://github.com/google/bbr/blob/master/Documentation/bbr-quick-start.md" target="_blank" rel="noopener">官方Start Guide</a></p>
+<p>因此，我们这次很重要的一项步骤就是更换Linux的内核。这里要提醒的是，如果你的VPS使用的是<em>OpenVZ</em>的虚拟技术，是<strong>不能</strong>使用BBR的。并且，系统要求在 CentOS 6+，Debian 7+，Ubuntu 12+。</p>
+<p><strong>开始前先说一声，我使用的系统是Ubuntu Server 14.04 x86-64，并且使用root用户操作</strong></p>
+<h2>更换Linux内核</h2>
+<p>按照惯例我们先更新一下apt源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br></pre></td></tr></table></figure>
+<p>然后我们要下载Ubuntu的内核，在这里我选择了比较新的4.10.13版本。
+如果你要选择别的内核版本，可以浏览<a href="http://kernel.ubuntu.com/~kernel-ppa/mainline/" target="_blank" rel="noopener">完整列表</a></p>
+<p>我们把内核文件先下载到 <code>/tmp</code> 文件夹中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.13/linux-image-4.10.13-041013-generic_4.10.13-041013.201704290147_amd64.deb</span><br></pre></td></tr></table></figure>
+<p>然后使用<code>dpkg -i</code>命令执行安装</p>
+<blockquote>
+<p>文件名你可以只输入前几个字母然后按tab键自动补齐</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg -i linux-image-4.10.13-041013-generic_4.10.13-041013.201704290147_amd64.deb</span><br></pre></td></tr></table></figure>
+<p>装完以后，我们查看一下已安装的内核列表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg -l | grep linux-image</span><br></pre></td></tr></table></figure>
+<p>如果列表中出现了你刚才安装的内核，那么证明已经安装成功了。</p>
+<p>然后我们执行内核更新，完成后重启。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">update-grub</span><br><span class="line"><span class="comment">## 等待输出 done 后重启系统</span></span><br><span class="line">reboot</span><br></pre></td></tr></table></figure>
+<p>重启以后，我们检查一下系统内核是否正确切换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure>
+<p>如果输出的结果是你刚才安装的系统内核，则表示安装成功了。</p>
+<h2>开启BBR</h2>
+<p>执行下面这两条脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"net.core.default_qdisc=fq"</span> &gt;&gt; /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"net.ipv4.tcp_congestion_control=bbr"</span> &gt;&gt; /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+<p>保存生效</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+<p>执行脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br></pre></td></tr></table></figure>
+<p>如果刚才的保存和执行脚本结果都有 <code>bbr</code> 那么代表你的内核已经开启了BBR</p>
+<p>执行脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep bbr</span><br></pre></td></tr></table></figure>
+<p>如果结果中有<code>tcp_bbr</code> ，则说明bbr已经启动。</p>
+<h2>安装Shadowsocks</h2>
+<p>首先检查一下python运行环境，并且安装pip。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python -V</span><br><span class="line">apt-get install python-pip</span><br></pre></td></tr></table></figure>
+<p>然后安装Shadowsocks和可能用到的加密库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install python-m2crypto</span><br><span class="line">pip install shadowsocks</span><br></pre></td></tr></table></figure>
+<p>在<code>/etc</code>文件夹下新建一个配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir /etc/shadowsocks</span><br><span class="line"><span class="built_in">cd</span> /etc/shadowsocks</span><br><span class="line">vim config.json</span><br></pre></td></tr></table></figure>
+<p>在<code>config.json</code>中输入配置信息，例如</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"server"</span>: <span class="string">"my_server_ip"</span>,</span><br><span class="line">    <span class="attr">"server_port"</span>: <span class="number">8388</span>,</span><br><span class="line">    <span class="attr">"local_address"</span>: <span class="string">"127.0.0.1"</span>,</span><br><span class="line">    <span class="attr">"local_port"</span>: <span class="number">1080</span>,</span><br><span class="line">    <span class="attr">"password"</span>: <span class="string">"mypassword"</span>,</span><br><span class="line">    <span class="attr">"timeout"</span>: <span class="number">300</span>,</span><br><span class="line">    <span class="attr">"method"</span>: <span class="string">"aes-256-cfb"</span>,</span><br><span class="line">    <span class="attr">"fast_open"</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编辑完后，保存退出。执行命令即可在后台开启Shadowsocks服务。为了避免由root用户启动带来的无法预知的错误，用nobody用户启动。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssserver -c config.json --user nobody -d start</span><br></pre></td></tr></table></figure>
+<p>如果想要设置开机启动，可以把上面那一行命令添加到<code>/etc/rc.local</code>文件中，注意要复制到<code>exit 0</code>之前。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

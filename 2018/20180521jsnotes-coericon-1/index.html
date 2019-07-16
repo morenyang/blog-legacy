@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>JS学习笔记:类型转换之「抽象值操作」 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180521jsnotes-coericon-1/">
+                    JS学习笔记:类型转换之「抽象值操作」
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted May 21 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>这怕是JavaScript中最坑、最有毒的一个部分了。</p>
+<p>将值从一种类型转换成另一种类型叫做类型转换。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">var</span> b = <span class="built_in">String</span>(a);  <span class="comment">// "1" 显式转换</span></span><br><span class="line"><span class="keyword">var</span> c = <span class="string">""</span> + a;     <span class="comment">// "1" 隐式转换</span></span><br></pre></td></tr></table></figure>
+<p>在JavaScript中，我们把上面列举的两类转换都称为 <em>强制类型转换</em> ，按照显式和隐式的区别我们可以将强制类型转换分为 <em>显式强制类型转换</em> 和 <em>隐式强制类型转换</em> 。</p>
+<p>当然要注意，这里的显式和隐式都是相对的。假如你对JavaScript运行中的所有将要执行的类型转换都牢记于心，那当然可以把他们全部称为显式强制类型转换。本文主要参考《你不知道的JavaScript中卷》，因此参照书中的标准来界定显式和隐式。</p>
+<p>JavaScript中的强制类型转换总是返回<strong>标量基本类型值</strong>，例如字符串、数字和布尔值，不会返回对象和函数。</p>
+<p>这篇文章会学习抽象值操作。</p>
+<h2>抽象值操作</h2>
+<h3>ToString</h3>
+<p>基本类型的字符串化规则为：</p>
+<ul>
+<li><code>null</code>转换为<code>&quot;null&quot;</code></li>
+<li><code>undefined</code>转换为<code>&quot;undefined&quot;</code></li>
+<li><code>true</code>转换为<code>true</code></li>
+<li>数字的字符串化则遵循通用规则，对于极小和极大的数使用指数形式</li>
+</ul>
+<p>对于对象来说，字符串化的时候会调用对象的<code>toString()</code>方法，并使用其返回值。如果没有自行定义的话，<code>toString()</code>方法会默认返回内部属性[[Class]]的值。例如以下的例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""</span> + &#123;&#125;; <span class="comment">// "[object Object]"</span></span><br><span class="line"></span><br><span class="line"><span class="string">""</span> + [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]; <span class="comment">// "1,2,3"</span></span><br><span class="line"><span class="string">""</span> + &#123;<span class="attr">toString</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span> <span class="string">"1"</span>&#125;&#125;; <span class="comment">// "1"</span></span><br></pre></td></tr></table></figure>
+<p><code>toString()</code> 可以被显式调用，或在需要字符串化的时候自动调用。</p>
+<h3>JSON 字符串化</h3>
+<p><code>JSON</code>应该是我们在JS中最常用的序列化和反序列化工具之一了。<code>JSON.stringify()</code>在将对象序列化为字符串的时候也用到了ToString。但是需要注意，JSON字符串化并非严格意义上的强制类型转换。</p>
+<p>对于大多数基本类型值来说，JSON字符串化的结果和<code>toString()</code>是差不多的，只不过序列化的结果总是字符串：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">JSON</span>.stringify(<span class="number">1</span>);  <span class="comment">// "1"</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(<span class="string">"1"</span>);  <span class="comment">// ""1"" (带有双引号的字符串)</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(<span class="literal">null</span>); <span class="comment">// "null"</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(<span class="literal">true</span>); <span class="comment">// "true"</span></span><br></pre></td></tr></table></figure>
+<p>有些值<code>JSON</code>是无法处理的，例如：<code>undefined</code>、<code>function</code>、<code>symbol</code> 和包含循环引用（对象之间相互引用）的对象。我们把这些它们称作 <em>不安全的JSON值</em> 。</p>
+<p>相对的，所有 <em>安全的JSON值（JSON-safe）</em> 都可以使用<code>JSON.stringify()</code>字符串化。</p>
+<p><code>JSON.stringify()</code> 在对象中遇到 <code>undefined</code>、 <code>function</code> 和 <code>symbol</code>的时候会自动忽略他们，在数组中这回返回null（为的是保证数据的下标不变），在遇到循环引用的对象时会报错。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">JSON</span>.stringify(<span class="literal">undefined</span>); <span class="comment">// undefined</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;); <span class="comment">// undefined</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">JSON</span>.stringfiy(</span><br><span class="line">  [<span class="number">1</span>, <span class="literal">undefined</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;, <span class="number">4</span>]</span><br><span class="line">); <span class="comment">// "[1,null,null,4]"</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(</span><br><span class="line">  &#123;<span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;, <span class="attr">c</span>: <span class="literal">undefined</span> &#125;</span><br><span class="line">);  <span class="comment">// "&#123;"a":1&#125;"</span></span><br><span class="line"><span class="built_in">JSON</span>.stringify(</span><br><span class="line">  &#123;<span class="attr">toString</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span> <span class="string">"1"</span>&#125;&#125;</span><br><span class="line">); <span class="comment">// "&#123;&#125;"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = &#123;&#125;;</span><br><span class="line"><span class="keyword">var</span> b = &#123;<span class="attr">a</span>: a&#125;;</span><br><span class="line">a.b = b;</span><br><span class="line"><span class="built_in">JSON</span>.stringify(a); <span class="comment">// Uncaught TypeError: Converting circular structure to JSON</span></span><br></pre></td></tr></table></figure>
+<p>如果对象中定义了<code>toJSON()</code>方法，<code>JSON</code>字符串化的时候会首先调用该方法，然后用它的返回值来进行序列化。如果你对某些非法JSON值定义了<code>toJSON()</code>方法，并返回一个安全的JSON值，那么这个值就能被字符串化了。 <em>注意，对象是不自带<code>toJSON()</code>方法的，需要你主动定义它。</em> 例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = &#123;&#125;;</span><br><span class="line"><span class="keyword">var</span> b = &#123;<span class="attr">a</span>: a&#125;;</span><br><span class="line">a.b = b;</span><br><span class="line"></span><br><span class="line">b.toJSON = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">JSON</span>.stringify(a); <span class="comment">// "&#123;"b":&#123;&#125;&#125;"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">foo.toJSON = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span> <span class="number">123</span>&#125;</span><br><span class="line"><span class="built_in">JSON</span>.stringify(foo); <span class="comment">// "123"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = &#123;</span><br><span class="line">  a: <span class="literal">undefined</span>,</span><br><span class="line">  toJSON: <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123; <span class="keyword">return</span> &#123;<span class="attr">a</span>: <span class="literal">null</span>&#125; &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">JSON</span>.stringify(bar); <span class="comment">// "&#123;"a":null&#125;"</span></span><br></pre></td></tr></table></figure>
+<p><code>toJSON()</code>返回的并不一定是JSON字符串化后的值（这样其实会对字符串再做一次字符串化），而应当是一个<strong>适当的值</strong>，<strong>可以是任何类型</strong>，然后再由<code>JSON.stringify()</code>对其字符串化。</p>
+<h2>ToNumber</h2>
+<p>ToNumber相比ToString来说就简单很多。</p>
+<p>将基本数据类型转换为数字的规则为：</p>
+<ul>
+<li><code>true</code>转换为<code>1</code></li>
+<li><code>false</code>转换为<code>0</code></li>
+<li><code>undefined</code>转换为<code>NaN</code></li>
+<li><code>null</code>转换为<code>0</code></li>
+<li>对字符串的转换遵循通用规则，处理失败时返回<code>NaN</code>，对以0开头的十六进制数按十进制处理而非十六进制。</li>
+</ul>
+<p>对于对象来说，它们会先被转换成相应的基本类型值，如果返回的是非数字的基本类型值，则再遵循以上规则将其转换成数字。</p>
+<p>对象转换成基本类型值的规则为：首先检查是否有<code>valueOf()</code>方法，如果有并且返回基本类型值，就使用改值进行转换。如果没有则使用<code>toString()</code>方法的返回值（如果存在）来进行强制类型转换。如果<code>valueOf()</code>和<code>toString()</code>都不反悔基本类型值，则会产生TypeError错误。</p>
+<p>几个例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = &#123;<span class="attr">valueOf</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span> <span class="string">"1"</span>&#125;&#125;;</span><br><span class="line"><span class="keyword">var</span> b = &#123;<span class="attr">toString</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span> <span class="string">"2"</span>&#125;&#125;</span><br><span class="line"><span class="built_in">Number</span>(a); <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">Number</span>(b); <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> c = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line"><span class="built_in">Number</span>(c); <span class="comment">// NaN</span></span><br><span class="line">c.valueOf = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Number</span>(c); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> d = [];</span><br><span class="line"><span class="built_in">Number</span>(d); <span class="comment">// 0</span></span><br><span class="line">d.toString = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Number</span>(d); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> e = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>];</span><br><span class="line">e.toString = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.join(<span class="string">""</span>) <span class="comment">// 123</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Number</span>(e) <span class="comment">//123</span></span><br></pre></td></tr></table></figure>
+<h3>ToBoolean</h3>
+<p>boolean的两个字<code>true</code>和<code>false</code>分别代表着 <em>真</em> 和 <em>假</em> 。在JavaScript中，数字<code>1</code>和<code>0</code>与<code>true</code>和<code>false</code>并不等价。</p>
+<p>对于基本类型值来说，JavaScript中的值可以分为两类：</p>
+<ul>
+<li>可以被强制类型转换成<code>false</code>的值</li>
+<li>其他（可以被强制类型转换成<code>true</code>）的值</li>
+</ul>
+<p>以下的值为 <em>假值</em> ：</p>
+<ul>
+<li><code>undefined</code></li>
+<li><code>null</code></li>
+<li><code>false</code></li>
+<li><code>+0</code>、<code>-0</code>和<code>NaN</code></li>
+<li><code>&quot;&quot;</code></li>
+</ul>
+<p>除了假值表以外的所有值都可以理解为 <em>真值</em> 。</p>
+<p>一般来说，所有的对象都是真值，但是有一些特殊情况，我们可以把他们叫做 <em>假值对象</em> 。</p>
+<p>先来说几个例子——</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="literal">false</span>);</span><br><span class="line"><span class="keyword">var</span> b = <span class="keyword">new</span> <span class="built_in">Number</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">var</span> c = <span class="keyword">new</span> <span class="built_in">String</span>(<span class="string">""</span>);</span><br><span class="line"><span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> foo = <span class="built_in">Boolean</span>(a &amp;&amp; b &amp;&amp; c &amp;&amp;d);</span><br><span class="line">foo; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p><code>foo</code>为<code>true</code>，说明<code>a</code>、<code>b</code>、<code>c</code>、<code>d</code>都为true。</p>
+<p>这些封装了假值的对象都并非假值。</p>
+<p>我们来看看真正的假值对象——他们是来自浏览器在某些特定条件下创造的对象，例如<code>document.all</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">document</span>.all; <span class="comment">// 返回一个 HTMLAllCollection 对象</span></span><br><span class="line">!!<span class="built_in">document</span>.all; <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<p>这是一个类数组对象，由DOM提供（而非JavaScript引擎）提供给JavaScript程序使用。它以前曾是一个真正意义上的对象，布尔强制类型转换的结果为true，但现在它是一个假值对象——并且这已经死一个被废止的方法了。</p>
+<p>由于很多JavaScript程序依赖<code>document.all</code>来判断是否是旧版浏览器，因此一直没有把它去掉。</p>
+<p>再说一说几个真值的情况——虽然刚才说过了假值表以外的都是真值，但是你还可能会遇到一些比较刁钻的状况：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="built_in">Boolean</span>(<span class="string">"false"</span>);</span><br><span class="line">a; <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> b = <span class="built_in">Boolean</span>(<span class="string">"0"</span>);</span><br><span class="line">b; <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> c = <span class="built_in">Boolean</span>(<span class="string">"\"\""</span>);</span><br><span class="line">c; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>对于字符串来说，除了<code>&quot;&quot;</code>以外都是真值。同时，对于<code>[]</code>、<code>{}</code>、<code>function(){}</code>这一类的对象都是真值。</p>
+<h2>最后</h2>
+<p>这一部分的内容是真的坑、真的经常会被问到。对于类型转换，一定要多小心、多注意。</p>
+<h3>参考</h3>
+<ul>
+<li>《你不知道的JavaScript中卷》第一部分第四章</li>
+</ul>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

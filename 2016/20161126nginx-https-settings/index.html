@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>向Nginx添加SSL证书 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2016/20161126nginx-https-settings/">
+                    向Nginx添加SSL证书
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted November 26 2016
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>HTTPS，是以安全为目标的 HTTP 通道，用以提供加密通讯以及对网络服务器身份的鉴定，被广泛用于对互联网上的隐秘通话的保护上，比如网上交易环节。现在已有越来越多的网站使用HTTPS。<a id="more"></a></p>
+<h3>获取SSL证书</h3>
+<p>要在你的域名上使用HTTPS，首先你要申请SSL证书。目前SSL证书分为三类：</p>
+<ul>
+<li>域名型SSL证书（DV SSL）</li>
+</ul>
+<blockquote>
+<p>信任等级普通，只需验证网站的真实性便可颁发证书保护网站。(一般个人网站、中小型企业或者内容展示型的网站使用此类证书就可以了。)</p>
+</blockquote>
+<ul>
+<li>企业型SSL证书（OV SSL）</li>
+</ul>
+<blockquote>
+<p>信任等级强，须要验证企业的身份，审核严格，安全性更高；</p>
+</blockquote>
+<ul>
+<li>增强型SSL证书（EV SSL）</li>
+</ul>
+<blockquote>
+<p>信任等级最高，一般用于银行证券等金融机构，审核严格，安全性最高，同时可以激活网址栏绿色企业信息。</p>
+</blockquote>
+<blockquote>
+<p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20161126nginx-https-settings-1.png" alt="">
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161126nginx-https-settings-2.png" alt="">
+使用DV和OV证书与使用EV证书，在浏览器中的显示效果</p>
+</blockquote>
+<p>一般来说，想要获取一个SSL证书，需要向签发机构支付一笔认证费用。但是腾讯云和阿里云用户都可以免费申请认证市场为一年的DV证书，他们的CA机构都是Symantec，而且认证方式也十分简单快捷，只需要向你的域名添加一个CNAME记录即可。</p>
+<p>在你的证书认证通过后，你就可以下载到你域名的证书了。</p>
+<blockquote>
+<p><img src="http://morensblog-static.tengtengtengteng.com/img/post/20161126nginx-https-settings-3.png" alt="">
+下载的证书和秘钥文件</p>
+</blockquote>
+<h3>把证书部署到Nginx中</h3>
+<p>首先打开你的Nginx配置文件夹，例如我的文件夹是<code>/etc/nginx</code>。使用<code>ls</code>命令，你可以看到文件夹中的所有文件。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161126nginx-https-settings-4.png" alt="">
+然后使用编辑器打开默认配置文件<code>nginx.conf</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo nano nginx.conf</span><br></pre></td></tr></table></figure>
+<p>一般来说，在<code>http</code>项的配置中，你会看到下面这一句话</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http&#123;</span><br><span class="line">    <span class="comment"># something other</span></span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">    <span class="comment"># 一般来说你会看到下面这句话</span></span><br><span class="line">    include /etc/nginx/conf.d/*.conf</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果有的话，就可以直接退出编辑器；如果没有的话，就手动加上并保存，然后退出编辑器。
+然后我们进入到<code>conf.d</code>这个文件夹中，新建一个文件夹来保存我们的证书和秘钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir crt</span><br></pre></td></tr></table></figure>
+<p>我们可以使用<code>ls</code>命令来查看是否创建成功。创建成功后，就把刚才下载的证书和秘钥放到<code>crt</code>的文件夹中。<s>这里为了偷懒，我直接把证书和秘钥扔到了COS中，然后用<code>wget</code>命令下载。</s>
+完事之后，我们在刚才的<code>conf.d</code>文件夹中新建一个配置文件，例如<code>www.conf</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo nano www.conf</span><br></pre></td></tr></table></figure>
+<p>接着向配置文件中输入网站的配置项，我们以<code>tengtengtengteng.com</code>为例，输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen 443; <span class="comment"># 监听443端口</span></span><br><span class="line">        server_name www.tengtengtengteng.com; <span class="comment">#填写绑定证书的域名</span></span><br><span class="line">        ssl on; <span class="comment"># 设置SSL为开启</span></span><br><span class="line">        ssl_certificate /etc/nginx/conf.d/crt/1_www.tengtengtengteng.com_bundle.crt; <span class="comment"># 刚才保存的证书文件</span></span><br><span class="line">        ssl_certificate_key /etc/nginx/conf.d/crt/2_www.tengtengtengteng.com.key; <span class="comment"># 刚才保存的秘钥文件</span></span><br><span class="line">        ssl_session_timeout 5m;</span><br><span class="line">        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; <span class="comment"># 按照这个协议配置</span></span><br><span class="line">        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;<span class="comment"># 按照这个套件配置</span></span><br><span class="line">        ssl_prefer_server_ciphers on;</span><br><span class="line">        location / &#123;</span><br><span class="line">            <span class="comment"># 输入你站点定向内容</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>保存，然后重启Nginx服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo service nginx restart</span><br></pre></td></tr></table></figure>
+<p>如果重启命令回复的状态是<code>[OK]</code>就证明你的配置没有问题了</p>
+<h3>设置HTTP请求自动跳转到HTTPS</h3>
+<p>如果要让网站强制使用HTTPS的话，有不少种方法，最简单方便的就是直接在Nginx的配置文件中把80端口的请求指向443端口中。我们只需要在刚才的<code>www.conf</code>文件中加入这一段：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">  listen 443;</span><br><span class="line">  <span class="comment"># something...</span></span><br><span class="line">  <span class="comment"># 这是刚才我们加的那段</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 新加入下面这一段</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server_name www.tengtengtengteng.com;</span><br><span class="line">    rewrite ^(.*) https://<span class="variable">$host</span><span class="variable">$1</span> permanent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样，保存后重启Nginx服务器即可。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

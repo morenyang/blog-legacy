@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>Axios权限拦截 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20171112axios-auth-interceptors/">
+                    Axios权限拦截
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted November 12 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>在使用流行的前端框架时，前后台的数据交互常使用token或其他一些自定义headers来标识用户身份，因此在发送请求的过程中，我们就需要用到一些拦截器来帮助我们完成一些工作，例如添加自定义的headers、取消请求等。<a id="more"></a></p>
+<h3>添加自定义headers</h3>
+<p>这个操作我们在拦截器中进行就可以了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 先预定义好一个axios实例r</span></span><br><span class="line"><span class="keyword">const</span> r = axios.create(&#123;</span><br><span class="line">    <span class="comment">// your config</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 给r配置拦截器</span></span><br><span class="line">r.interceptors.request.use(</span><br><span class="line">  config =&gt; &#123;</span><br><span class="line">    <span class="comment">// 自定义一些配置</span></span><br><span class="line">    config.headers[<span class="string">'x-user-flag'</span>] = <span class="string">'your-flag'</span></span><br><span class="line">    <span class="comment">// 从store中获取数据</span></span><br><span class="line">    <span class="keyword">const</span> authState = store.getState().auth;</span><br><span class="line">    <span class="keyword">if</span> (!!authState.loginState) &#123;</span><br><span class="line">      config.headers[<span class="string">'openid'</span>] = authState.openid;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">return</span> config;</span><br><span class="line">  &#125;,</span><br><span class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h3>判断没有权限时拦截请求</h3>
+<p>这个操作同样要在拦截器中定义，但是我们要先创建一个CancelToken</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> CancelToken = axios.CancelToken;</span><br><span class="line"><span class="keyword">const</span> source = CancelToken.source();</span><br><span class="line">r.interceptors.request.use(</span><br><span class="line">  config =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> authState = store.getState().auth;</span><br><span class="line">    <span class="keyword">if</span> (!!authState.loginState) &#123;</span><br><span class="line">      config.headers[<span class="string">'openid'</span>] = authState.openid;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      source.cancel(<span class="string">'No Permission'</span>);</span><br><span class="line">      <span class="comment">// some other actions</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> config;</span><br><span class="line">  &#125;,</span><br><span class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h3>拦截响应</h3>
+<p>拦截响应和上述方法类似，新建一个response的拦截器即可</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">r.interceptors.use(</span><br><span class="line">  res =&gt; &#123;</span><br><span class="line">    <span class="comment">// some actions</span></span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">  &#125;,</span><br><span class="line">  error =&gt; <span class="built_in">Promise</span>.reject(error)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h4>参考文档</h4>
+<p><a href="https://github.com/axios/axios#interceptors" target="_blank" rel="noopener">https://github.com/axios/axios#interceptors</a>
+<a href="https://github.com/axios/axios#cancellation" target="_blank" rel="noopener">https://github.com/axios/axios#cancellation</a></p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

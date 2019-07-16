@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>使用Jetbrains的IDE编写SVN中的项目 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2016/20161218idea-svn-settings/">
+                    使用Jetbrains的IDE编写SVN中的项目
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted December 18 2016
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <h3>先扯几句没用的</h3>
+<p>我们在开发项目的时候也经常会使用版本控制系统来管理我们的代码，例如著名的代码托管网站GitHub或者自己搭建的Git服务器或SVN服务器。</p>
+<p>每种版本控制系统都有各自的优点和缺点，虽然我个人比较偏向于使用git，然而由于某些原因项目必须使用SVN来管理。Jetbrains开发的一系列IDE中都自带了VCS，可以直接从Version Control中打开、编辑和提交代码。因此我们就来配置一个SVN项目。</p>
+<h3>在IDE中配置VCS项目</h3>
+<p>这里以IDEA为例子，在欢迎界面的右边我们可以看到<code>Check out form Version Control</code>的选项，点开就可以看到几种VCS的类别，选择你项目所对应的VCS，然后会进入一个仓库管理面板。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161218-idea-svn1.png" alt=""></p>
+<p>点击那个小加号，输入你VCS的服务器地址，然后这个仓库就会出现在你的仓库列表中，选择你项目的仓库，点击右下角的Checkout，然后选择这个项目在本机存放的位置，并输入你的VCS的账号密码，点击然后一路确定，IDE就会自动帮你下载项目到本地并自动打开项目了。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161218-idea-svn2.png" alt=""></p>
+<h3>在IDE中提交这更新项目</h3>
+<p>进入项目以后，如果想要更新、提交项目或文件，选择文件或文件夹，在右键 - subversion/Git 的菜单中，就可以选择提交、恢复、更新的选项了。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161218-idea-svn3.png" alt="">
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161218-idea-svn4.png" alt=""></p>
+<h4>在Windows中配置的注意事项</h4>
+<p>值得注意的是，如果你使用的是Windows系统，<a href="https://blog.jetbrains.com/idea/2013/12/subversion-1-8-and-intellij-idea-13/" target="_blank" rel="noopener">你需要手动配置SVN工具的路径</a><s><em>我不知道为什么我在mac中不用配置直接就可以用了</em></s>。Jetbrains的官网技术文档中向你指向了Apache的Apache Subversion Binary Packages网站，选择你系统对应的SVN工具，下载即可。我在我的电脑中选择的是<a href="https://sliksvn.com/download/" target="_blank" rel="noopener">SlikSVN</a>。</p>
+<p>安装完后，你需要在<code>Settings - Version Control - Subversion</code> 页面中的<code>General</code>卡中选择<code>Use command line Client</code>并且指定相应的SVN程序位置。
+<img src="http://morensblog-static.tengtengtengteng.com/img/post/20161218-idea-svn5.png" alt=""></p>
+<p>同理，如果你使用的是Git来管理项目的话，也要安装对应的Git命令行工具，在这里就不再过多赘述。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

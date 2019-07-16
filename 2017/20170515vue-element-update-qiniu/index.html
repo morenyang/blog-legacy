@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>使用Element UI的上传组件将图片上传至七牛云 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2017/20170515vue-element-update-qiniu/">
+                    使用Element UI的上传组件将图片上传至七牛云
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted May 15 2017
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>首先说一句，七牛云提供个官方Javascript客户端SDK真的是让我看得一头雾水。没办法，在网上找了别人的文章，又去比较了一下官方Demo的请求和Element组件上传时的请求，才把上传给琢磨清除。<a id="more"></a></p>
+<h3>开始之前</h3>
+<ul>
+<li>先去注册一个七牛云的账号</li>
+<li>创建一个对象存储的空间，并把空间名字记下来</li>
+<li>在对象存储的空间，把右边的测试域名记下来</li>
+<li>在七牛个人中心 - 秘钥管理那里把你的AK和SK记下来</li>
+<li>去找<a href="https://developer.qiniu.com/kodo/manual/1671/region-endpoint" target="_blank" rel="noopener">文档</a>，把七牛提供的存储空间对应区域的上传域名记下来</li>
+</ul>
+<p>可以通过一幅图来帮助我们了解上传的整个数据流</p>
+<p><img src="https://odum9helk.qnssl.com/Fmy1Y_s9I4oCPYuMGDrvYxCRv2FM" alt=""></p>
+<h2>服务端配置</h2>
+<p>我们用的是Java写的后端，嗯我知道你现在想要文档了，<a href="https://developer.qiniu.com/kodo/sdk/1239/java" target="_blank" rel="noopener">给你</a>。</p>
+<p>其实也没多难，API文档上面写得很清楚，复制粘贴就可以了。首先我们用Maven把依赖装好，然后新建一个FileUploadController，把改写的写上去即可。</p>
+<p>这里我们的上传策略是，不从前端获取key，文件名和路径前缀全部由后台来决定。参考代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AK和SK</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String AccessKey = <span class="string">"HelloWorld"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String SecretKey = <span class="string">"HelloWorld"</span>;</span><br><span class="line"><span class="comment">// 存储空间的名字</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String Bucket = <span class="string">"BucketName"</span>;</span><br><span class="line"><span class="comment">// 存储空间的访问域名</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String BucketDomain = <span class="string">"//bucketName.bkt.clouddn.com"</span>;</span><br><span class="line"><span class="comment">// 七牛提供的上传域名</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String UploadAPI = <span class="string">"//upload-domain.qiniu.com"</span>;</span><br><span class="line"><span class="meta">@GetMapping</span>(<span class="string">"/getUpToken"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title">getToken</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Map&lt;String, Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="keyword">boolean</span> status = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Auth auth = Auth.create(AccessKey, SecretKey);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 定义token过期时间</span></span><br><span class="line">        <span class="keyword">long</span> expireSeconds = <span class="number">3600</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 定义上传策略</span></span><br><span class="line">        StringMap policy = <span class="keyword">new</span> StringMap();</span><br><span class="line">        policy.put(<span class="string">"saveKey"</span>, <span class="string">"img/$(etag)$(ext)"</span>);</span><br><span class="line">        </span><br><span class="line">        String upToken = auth.uploadToken(Bucket, <span class="keyword">null</span>, expireSeconds, policy);</span><br><span class="line">        map.put(<span class="string">"uptoken"</span>, upToken);</span><br><span class="line">        map.put(<span class="string">"bucketDomain"</span>, BucketDomain);</span><br><span class="line">        map.put(<span class="string">"uploadAPI"</span>, UploadAPI);</span><br><span class="line">        status = <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    map.put(APP_STATUS, status);</span><br><span class="line">    <span class="keyword">return</span> map;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2>前端代码</h2>
+<p>这里我们把上传的域名、存储空间的域名等所有参数都由后台提供，所以el-upload中的参数就全部绑定在data中。</p>
+<h3>template</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">el-upload</span></span></span><br><span class="line"><span class="tag">    <span class="attr">class</span>=<span class="string">"upload-demo"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">drag</span></span></span><br><span class="line"><span class="tag">    <span class="attr">:action</span>=<span class="string">"uploadAPI"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">:before-upload</span>=<span class="string">"handleBeforeUpload"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">:data</span>=<span class="string">"form"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">:on-success</span>=<span class="string">"handleUploadSuccess"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">:multiple</span>=<span class="string">"false"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"el-icon-upload"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"el-upload__text"</span>&gt;</span>将文件拖到此处，或<span class="tag">&lt;<span class="name">em</span>&gt;</span>点击上传<span class="tag">&lt;/<span class="name">em</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"el-upload__tip"</span> <span class="attr">slot</span>=<span class="string">"tip"</span>&gt;</span>只能上传jpg/png文件，且不超过500kb<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">el-upload</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3>script</h3>
+<p>这里要注意的是，我们获取token的方法，返回的是Promise形式。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span>&#123;</span><br><span class="line">    name: <span class="string">'Upload'</span>,</span><br><span class="line">    data () &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        uploadAPI: <span class="string">''</span>, <span class="comment">// 上传的域名</span></span><br><span class="line">        bucketDomain: <span class="string">''</span>, <span class="comment">// 存储空间的访问域名</span></span><br><span class="line">        form: &#123;&#125; <span class="comment">// 上传时要传给七牛服务器的参数</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      <span class="comment">// 上传前执行的方法，注意这里返回的是Promise</span></span><br><span class="line">      <span class="comment">// 你也可以在这里通过file的值自定义一个key</span></span><br><span class="line">      handleBeforeUpload(file)&#123;</span><br><span class="line">        <span class="keyword">return</span> getUploadToken()</span><br><span class="line">          .then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (res.status) &#123;</span><br><span class="line">              <span class="keyword">this</span>.uploadAPI = res.uploadAPI;</span><br><span class="line">              <span class="keyword">this</span>.bucketDomain = res.bucketDomain;</span><br><span class="line">              <span class="keyword">this</span>.form = &#123;</span><br><span class="line">                token: res.uptoken</span><br><span class="line">              &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="keyword">return</span> <span class="built_in">Promise</span>.reject();</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleUploadSuccess(res)&#123;</span><br><span class="line">        <span class="keyword">let</span> url = <span class="string">`<span class="subst">$&#123;<span class="keyword">this</span>.bucketDomain&#125;</span>/<span class="subst">$&#123;res.key&#125;</span>`</span>;</span><br><span class="line">        <span class="built_in">console</span>.log(url);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实也并不是很难。但是要注意的是，如果你想在<code>before-upload</code>这个方法中通过对文件MD5
+生成一个<code>key</code>值，是不能直接 <code>let key = md5(file)</code>的，具体是为什么我也不知道，如果有大神知道的话可以告诉我。</p>
+<p>最后，给你们推荐一个第三方的SDK，名字叫做 <a href="https://github.com/lsxiao/qiniu4js" target="_blank" rel="noopener">qiniu4js</a>，在readme中提供的文档还是比较够用的。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

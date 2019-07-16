@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>一些redux的理解 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180304something-about-redux/">
+                    一些redux的理解
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted March 04 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>在使用react框架对组件进行状态管理的时候常常会遇到一些不方便的情况，特别是一些全局需要用到的状态，这时候常用的解决方案是使用redux。本文会对react结合redux框架说一些我的理解。<a id="more"></a></p>
+<h2>React的状态管理</h2>
+<p>首先要说的是react的一个基本思路，作为一个纯view层框架，react遵循了<code>view = fn(state)</code>的一个概念，即组件是一个函数，将状态传给组件，则会通过状态输出一个view。</p>
+<p>一个组件通过传入的初始状态生成初始的view。这时使用者想要主动改变一个状态的时候，就需要在view层主动声明一个方法，例如<code>onChange={this.handleValueChange}</code>，然后方法通过调用<code>setState</code>来更新数据，数据更新完再通过<code>fn(newState)</code>来生成新的view。</p>
+<p>在实际使用中情况其实并没有这么简单，跨组件更新state的情况就会经常遇到：如果是子组件需要更新父组件的状态，需要使用<code>this.props.handleValueChange</code>方法，如果是父组件想要更新子组件的状态需要使用<code>refs</code>。这些都是最简单情况。</p>
+<p>然而如果遇到像登录状态这样的需要很多个组件同时调用、甚至有时候更改需要触发一些组件相应动作的数据，如果使用最基础的解决方法，实现的效率就会非常麻烦：</p>
+<p>首先我们要考虑这个状态存在哪：</p>
+<ul>
+<li>它不可能存在一个比较低级的组件中，这样组件之间调用起来相当麻烦；</li>
+<li>如果存在一个比较高级的组件里，如果想获取，则要通过多层的props来传递；</li>
+<li>可以让低级组件通过context来获取，然而由于context API相对繁琐，这么做的开发效率会变得很低（实际上redux内部使用的是这个方法，另外新版react的context API变得相对简单，调用起来跟redux类似）；</li>
+<li>如果高级组件和低级组件中各保存一份状态，那么每次更新想要保证各个组件中的状态一致性又是一个让人头疼的问题。</li>
+</ul>
+<p>这就使问题变得比较难办，我们需要<strong>一个方便各级组件调用</strong>、<strong>容易协调状态</strong>、<strong>实现简单</strong>的解决工具来帮助我们管理状态，这时redux就横空出世了。</p>
+<h2>Redux的实现思路</h2>
+<p>上面已经明确了redux要解决的痛处。
+第一点上面已经说过了，redux通过使用React的context API来实现父组件跨级向子组件传输状态，然后封装成一个HOC方便我们使用。</p>
+<p>第二第三点就是一个比较需要探讨的问题了。</p>
+<h3>单一store</h3>
+<p>如果要方便协调数据，肯定不能把数据存放在分散的各个角落，因此要确保数据是存在单一的store中。另外，由于react遵循的<code>view = fn(state)</code>概念，这个store最好是要拥有初始状态（initState）的。</p>
+<p>我们把所需要的数据都存放在单一的store中，再由这个store向各个组件分发数据。当组件想要改变store的中的状态时，在通过相应的方法提交状态更新。这个概念是flux框架的简单理解，而更新状态和分发数据的概念称为单向数据流。</p>
+<h3>单向数据流</h3>
+<p>为了方便管理和分发state（可以理解为存在store中的数据），我们先把state存在一个store中，再把state作为组件的props分发下去，组件再通过这些props生成view。当某个组件要更新store中数据的时候，通过<code>dispatch</code>方法将要改变的地方提交给reducer ；reducer通过计算，返回一个新的state，替换store中的oldState；然后进入一个新的循环。</p>
+<p>通过以上两点，我们就用简单方法的解决了react经常遇到的复杂状态管理的问题，这也是我对redux核心思路的简单理解。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>JS绑定数据到HTML模板 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2016/20161012html-js-template/">
+                    JS绑定数据到HTML模板
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted October 12 2016
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>这段时间写网站的时候遇到了一些很烦的问题，就是要把从后台获取到的JSON数据渲染成HTML内容，有时候还需要再对数据进行一次请求的处理。然后在二次处理数据的时候我遇到了不少问题，于是请教了eWind大神。</p>
+<p><em>这篇文章的内容参考eWind大神的文章：<a href="http://ewind.us/2016/js-render-html-template/" target="_blank" rel="noopener">JS 绑定数据到 HTML 模板的简易模式</a></em><a id="more"></a></p>
+<hr>
+<p>我们在工作的时候，常常会遇到一份像这样的JSON数组：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var data = &#123;</span><br><span class="line">  "userid": "123456", </span><br><span class="line">  "name": "Maybe Fang", </span><br><span class="line">  "sex": 1, </span><br><span class="line">  "weChat": "abc123", </span><br><span class="line">  "city": "519000" </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们需要做的是把这些数据渲染成这样的HTML代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"user-info-card"</span> <span class="attr">id</span>=<span class="string">"uic_123456"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"user-info-name"</span>&gt;</span>Maybe Fang<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"user-info-sex"</span>&gt;</span>Male<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"user-info-weChat"</span>&gt;</span>abc123<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"user-info-city"</span>&gt;</span>Zhuhai<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>通常我们可能会这么写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> printer = <span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> content = <span class="string">'&lt;div class="user-info-card" id="uic_'</span> + data.userid + <span class="string">'"&gt;'</span>+</span><br><span class="line">    <span class="string">'&lt;div class="user-info-name"&gt;'</span> + data.name + <span class="string">'&lt;/div&gt;'</span>+</span><br><span class="line">    <span class="string">'&lt;div class="user-info-sex"&gt;'</span> + sexPrinter(data.sex) + <span class="string">'&lt;/div&gt;'</span>+</span><br><span class="line">    <span class="string">'&lt;div class="user-info-weChat"&gt;'</span> + data.weChat + <span class="string">'&lt;/div&gt;'</span>+</span><br><span class="line">    <span class="string">'&lt;div class="user-info-city"&gt;'</span> + cityPrinter(data.city) + <span class="string">'&lt;/div&gt;'</span>+</span><br><span class="line">    <span class="string">'&lt;/div&gt;'</span>;</span><br><span class="line">  $(<span class="string">".user-info-list"</span>).append(content);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> sexPrinter = <span class="function"><span class="keyword">function</span>(<span class="params">index</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> sexList = [<span class="string">''</span>, <span class="string">'Male'</span>, <span class="string">'Female'</span>];</span><br><span class="line">  <span class="keyword">return</span> (index == <span class="number">1</span> || index == <span class="number">2</span>) ? sexList[index] : <span class="string">'Undefined'</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> cityPrinter = <span class="function"><span class="keyword">function</span>(<span class="params">cityCode</span>)</span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">'...'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而这种写法虽然可行，但是会遇到一些问题：</p>
+<ul>
+<li>数据处理时如果遇到二次Ajax处理请求较难完成（如由</li>
+<li>JS 代码里掺杂 HTML 降低可读性，尤其是代码中经常需要将 class 的引号用另一种引号包裹。</li>
+<li>和数据无关的 CSS 样式也需要在 JS 里添加，增加了维护负担。</li>
+<li>性能问题，需要反复调用 jQuery 而较为低效（当然也可以在手工拼接 HTML 字符串后一次完成渲染，但代码非常丑陋）。</li>
+</ul>
+<p>因此我们可以这么写：
+首先我们在所需的网页中搞一个 <code>&lt;script&gt;</code> 标签来存放HTML代码的模板，像这样：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">id</span>=<span class="string">"template_uic"</span> <span class="attr">type</span>=<span class="string">"text/x-custom-template"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"user-info-card"</span> id=<span class="string">"uic_%userid%"</span>&gt;</span></span><br><span class="line"><span class="javascript">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"user-info-name"</span>&gt;%name%<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span></span><br><span class="line"><span class="javascript">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"user-info-sex"</span>&gt;%sex%<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span></span><br><span class="line"><span class="javascript">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"user-info-weChat"</span>&gt;%weChat%<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span></span><br><span class="line"><span class="javascript">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"user-info-city"</span>&gt;%city%<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span></span><br><span class="line"><span class="xml">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后我们在渲染HTML文本时，就可以取出模板中的内容，利用JS做正则替换即可：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> template = <span class="built_in">document</span>.getElementById(<span class="string">"template_uic"</span>).innerHTML;</span><br><span class="line"><span class="keyword">var</span> content = template.replace(<span class="regexp">/%userid%/</span>, data.userid)</span><br><span class="line">              .replace(<span class="regexp">/%name%/</span>, data.name)</span><br><span class="line">              .replace(<span class="regexp">/%sex%/</span>), sexPrinter(data.sex))</span><br><span class="line">              .replace(<span class="regexp">/%...%/</span>, data.info);</span><br><span class="line"></span><br><span class="line"><span class="comment">// insert</span></span><br><span class="line"><span class="built_in">document</span>.getElementsByClassName(<span class="string">'user-info-list'</span>).append(content);</span><br><span class="line"><span class="comment">// other things</span></span><br></pre></td></tr></table></figure>
+<p>我们也可以自定义方法来处理内容，这时候如果我们想要使用Ajax来二次处理数据就变得十分方便。例如，我们通过Ajax方法来通过邮编获取城市名：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> getCityName = <span class="function"><span class="keyword">function</span>(<span class="params">htmlContent, cityCode, callBack</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> url = <span class="string">'/queryCity?id='</span> + cityCode;</span><br><span class="line">  $.getJSON(url, <span class="function"><span class="keyword">function</span>(<span class="params">response</span>)</span>&#123;</span><br><span class="line">    htmlContent = htmlContent.replace(<span class="regexp">/%city%/</span>, response.cityName);</span><br><span class="line">    callBack(htmlContent);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> template = <span class="built_in">document</span>.getElementById(<span class="string">"template_uic"</span>).innerHTML;</span><br><span class="line"><span class="keyword">var</span> content = getCityName(template, data.city, <span class="function"><span class="keyword">function</span>(<span class="params">content</span>)</span>&#123;</span><br><span class="line">  <span class="comment">// insert</span></span><br><span class="line">  <span class="built_in">document</span>.getElementsByClassName(<span class="string">'user-info-list'</span>).append(content);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>当然，我们如果开一下脑洞，还可以做一些更猥琐的事情。
+例如，我们可以替换 className / id 甚至是 tagName，像这样:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"%className%"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">%tagName%</span>&gt;</span><span class="tag">&lt;/<span class="name">%tagName%</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>最后感谢一下eWind大神对我遇到的这个问题的耐心解答，希望这篇文章对你们有帮助。</p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

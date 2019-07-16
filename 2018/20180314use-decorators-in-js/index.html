@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>在JS中使用修饰器 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180314use-decorators-in-js/">
+                    在JS中使用修饰器
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted March 14 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>在一些面向对象的语言例如Java中，我们经常会使用到修饰器（Decorator）这个东西。
+例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/admin"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@PermissionRequired</span>(permissionName = <span class="string">"manageUser"</span>)</span><br><span class="line">  <span class="meta">@GetMapping</span>(<span class="string">"/user/list"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> JSONObject <span class="title">list</span><span class="params">(@PageableDefault(<span class="comment">/*value = 10 DEFAULT*/</span>sort = &#123;<span class="string">"userId"</span>&#125;, direction = Sort.Direction.DESC)</span> Pageable pageable) </span>&#123;</span><br><span class="line">    JSONObject data = <span class="keyword">new</span> JSONObject();</span><br><span class="line">    Page&lt;User&gt; userList = userService.findAll(pageable);</span><br><span class="line">    data.put(ReturnResult.DATA.getCode(), userList);</span><br><span class="line">    <span class="keyword">return</span> data;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>学后台的同学看到我的代码就常常向我吐槽JavaScript中怎么就没有这么简便的方法。这几天无意间有看到TS中是支持修饰器的（没错我就是在angular里面看到的），然后研究了一下，发现在JS中也是可以使用它的。</p>
+<h2>开始之前</h2>
+<p>首先要说明的是，装置器的功能还属于ECMAScript的提案阶段，也就是说他的使用方法可能随时改变，因此使用时需要谨慎考虑。</p>
+<p>我们在需要用babel进行翻译，在babel 6+的版本中，可以用插件<a href="https://www.npmjs.com/package/babel-plugin-transform-decorators-legacy" target="_blank" rel="noopener"><code>babel-plugin-transform-decorators-legacy</code></a>。如果是babel 5或更早的版本，可以用<code>babel-plugin-transform-decorators</code>或<code>babel-preset-stage-0</code>。</p>
+<p>实质上，修饰器就是一个方法的语法糖。一般来说，修饰器可以修饰类和类中的方法，使用方式和Java中的修饰器类似。</p>
+<h2>修饰类</h2>
+<p>这是使用修饰器修饰类的最基础用法：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">readable</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">  target.read = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@readable</span></span><br><span class="line"><span class="keyword">class</span> Book &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">book = <span class="keyword">new</span> Book();</span><br><span class="line">book.read; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>其中，<code>@readable</code>就叫做修饰器，通过<code>readable</code>方法劫持了<code>Book</code>这个类，并为其加上了<code>read</code>属性。其中，<code>target</code>这个参数代表被修饰的类。</p>
+<p>我们也可以为修饰器指定一些自定义参数，只需要在外面多用一层函数封装即可。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">readable</span>(<span class="params">isReadable</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">    target.readable = isReadable;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@readable</span>(ture)</span><br><span class="line"><span class="keyword">class</span> Book() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line">Book.readable <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@readable</span>(<span class="literal">false</span>)</span><br><span class="line"><span class="keyword">class</span> Homework() &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line">Homework.readable <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>但是要注意，上面例子中的用法只能为类添加静态属性，如果你这么调用，他就不管用了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> book = <span class="keyword">new</span> Book();</span><br><span class="line">book.readable <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
+<p>因为修饰这个动作实在代码编译的时候完成的，而不是在运行时才进行。如果想要添加实例属性，可以在目标类的<code>prototype</code>对象上添加属性，例如：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">readable</span>(<span class="params">target</span>) </span>&#123;</span><br><span class="line">  target.prototype.read = <span class="literal">true</span>;</span><br><span class="line">  target.prototype.readName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@readable</span></span><br><span class="line"><span class="keyword">class</span> Book &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">this</span>.name = <span class="string">'laowugui'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> book = <span class="keyword">new</span> Book()</span><br><span class="line">book.read <span class="comment">// true</span></span><br><span class="line">book.readName() <span class="comment">// 'laowugui'</span></span><br></pre></td></tr></table></figure>
+<h2>修饰类的方法</h2>
+<p>与修饰类的修饰器不同，修饰类的方法(属性)的修饰器一般接受三个参数： <code>target</code>, <code>name</code>, <code>descriptor</code>。</p>
+<p>其中，<code>target</code>是类的原型，指向<code>target.prototype</code>；<code>name</code>是将要修饰的属性名；<code>descriptor</code>是该属性的描述对象。<code>descriptor</code>的对象原来的值如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">value:Any = specifiedFunction;</span><br><span class="line">enumerable:Bool = <span class="literal">false</span>;</span><br><span class="line">configurable:Bool = <span class="literal">true</span>;</span><br><span class="line">writable:Bool = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<p>也就是说，这一作用的修饰器实际上是在修改属性的描述对象(descriptor)。
+下面是一个例子：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">readonly</span>(<span class="params">target, name, descriptor</span>)</span>&#123;</span><br><span class="line">  descriptor.writable = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">return</span> descriptor;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Book &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">this</span>.name = <span class="string">'laowugui'</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@readonly</span></span><br><span class="line">  getName()&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;this.name&#125;</span>`</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果描述对象中的<code>enumerable</code>属性，可以使该属性不能被遍历。
+更多例子可以参考<a href="http://es6.ruanyifeng.com/#docs/decorator" target="_blank" rel="noopener">http://es6.ruanyifeng.com/#docs/decorator</a></p>
+<p>另外要说的是，如果一个方法有多个修饰器，那么他们的执行顺序是从外到内（从上往下）的。</p>
+<h2>结合React HOC的一些用法</h2>
+<p>写这篇文章的原因其实有一部分是因为利用修饰器的功能，可以让React的高阶组件（High Order Component）使用得很方便。我们可以将target类封装并返回出一个新的类出来使用。</p>
+<p>例如非常常用的<code>react-redux</code>组件，正常的声明方法是</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Comp</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span></span>&#123;</span><br><span class="line">  render()&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>我才不让你报错<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> connect(mapStateToProps, mapDispatchToProps)(MyReactComponent);</span><br></pre></td></tr></table></figure>
+<p>而如果使用了修饰器，则可以这么写：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@connect(mapStateToProps, mapDispatchToProps)(MyReactComponent)</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Comp</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Comp;</span><br></pre></td></tr></table></figure>
+<p>或者渲染劫持的例子：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">authRequire</span>(<span class="params">authName</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">TargetClass</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="class"><span class="keyword">class</span> <span class="keyword">extends</span> <span class="title">TargetClass</span> </span>&#123;</span><br><span class="line">      render()&#123;</span><br><span class="line">        <span class="keyword">if</span> (userPermissions.has(authName)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">super</span>.render()</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@authRequire(<span class="string">'manage'</span>)</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ManageComponent</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2>最后</h2>
+<p>以上是JS中使用修饰器的一些基础介绍。还是要提醒，使用这些新方法新技术新功能之前一定要慎重。另外，这种使用修饰器的编程方式我们常常称为面向切面编程（AOP）[今天java课老师刚讲 虽然我一句也没听懂]。</p>
+<h4>参考</h4>
+<p><a href="http://es6.ruanyifeng.com/#docs/decorator" target="_blank" rel="noopener">修饰器 - ECMAScript 6入门</a><br>
+<a href="https://github.com/tc39/proposal-decorators" target="_blank" rel="noopener">Decorators for JavaScript</a></p>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>

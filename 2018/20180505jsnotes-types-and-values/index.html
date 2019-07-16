@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <title>JS学习笔记:变量、类型和值 | Moren&#39;s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.4.1/dist/gitalk.css" integrity="sha256-4uFBneYzpMnNUfY7h9Zeiw6uazKIWM9RGXSJqtl6Z/8=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+
+<body>
+<main class="post">
+    
+<article>
+
+    <nav class="navbar">
+    <div class="layout">
+        <div class="content">
+            
+            
+            <a href="/.">Home</a>
+            
+            
+            
+            <a href="/archives">Archive</a>
+            
+            
+            
+            <a href="//yangteng.me">About</a>
+            
+            
+        </div>
+    </div>
+ </nav>
+    
+    <div class="header-wrapper">
+    
+        <header class="article-header">
+    
+            <div class="placeholder"></div>
+            <h1 class="article-title">
+                <a href="/2018/20180505jsnotes-types-and-values/">
+                    JS学习笔记:变量、类型和值
+                </a>
+            </h1>
+
+            <div class="article-meta">
+                <p class="article-date">
+                    Posted May 05 2018
+                </p>
+            
+        </div></header>
+    </div>
+
+    <section class="article-entry">
+        <p>不论在哪一种语言中，变量、类型和值都会是我们最常用到的几个概念。刚开始学JavaScript的时候，我会觉得这几样东西似乎没那么复杂——特别是对于这种弱类型语言——感觉我们做事的时候直接往变量里面赋个值就好了。然而当我从一个小白成长成一个菜鸟了以后，就发现这件事真的没有这么简单。</p>
+<h2>你是谁</h2>
+<p>类型。</p>
+<p>在JavaScript中，<strong>只有值才有类型</strong>。JavaScript一共有七种内置类型</p>
+<ul>
+<li>null</li>
+<li>undefined</li>
+<li>boolean</li>
+<li>number</li>
+<li>string</li>
+<li>symbol <em>ES6新增</em></li>
+<li>object</li>
+</ul>
+<p>我们可以把他们分成两类，object为一类——我们常把他叫做<strong>引用类型</strong>，剩下六个为一类——我们称他们为<strong>基本类型</strong>。</p>
+<p>我们可以用<code>typeof</code>关键字来判断某个值属于哪个类型，他会返回一个字符串：</p>
+<ul>
+<li><code>typeof 1; // &quot;number&quot;</code></li>
+<li><code>typeof &quot;1&quot; // &quot;string&quot;</code></li>
+<li><code>typeof true // &quot;boolean&quot;</code></li>
+<li><code>typeof undefined // &quot;undefined&quot;</code></li>
+<li><code>typeof Symbol() // &quot;symbol</code></li>
+<li><code>typeof {} // &quot;object&quot;</code></li>
+<li><code>typeof [] // &quot;object&quot;</code></li>
+<li><code>typeof setTimeout // &quot;function&quot; 特别注意！</code></li>
+<li><code>typeof null // &quot;object&quot; 特别注意！</code></li>
+</ul>
+<p>需要特别注意的是，使用typeof处理null的时候会返回**“object”**，这是JavaScript种的一个feature。如果我们想判断一个值的类型是不是null，你可以这么做：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> foo = <span class="literal">null</span>;</span><br><span class="line">(!a &amp;&amp; <span class="keyword">typeof</span> a === <span class="string">"object"</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>另外，typeof在处理函数的时候，会返回**“function”**。这是因为它虽然属于object的一个子类型，但是由于它是一个可执行的对象，所以进行了一些特别处理。</p>
+<h2>你叫什么名字</h2>
+<p>变量。</p>
+<p>JavaScript中的变量不需要主动定义类型，你也可以认为变量始终没有类型，它只持有某个值。换句话说——变量只是我们的一个户头，不同户头里可能会有不同类型和不同值的货币，我们可以随时把某个户头里的货币的值或者类型换掉。</p>
+<p>在JavaScript运行环境下，<strong>基本类型的变量的值会被储存在stark中</strong>，他们占据的空间小，大小固定。<strong>引用数据类型的变量的值会被存储在heap中，并在stark里存放一份这个对象的指针</strong>；引用数据类型常大小不固定，保存形式也不固定，如果存在stark中可能会影响程序的性能。</p>
+<p>要给一个变量名分配一个值，需要进行查询。在JavaScript中有两种查询类型——LHS（Left Hand Side）查询和RHS(Right Hand Side)查询。这里的Left和Right指的是赋值的时候，变量位于”=“的左侧还是右侧。</p>
+<p>LHS查询指的是查找到某个变量的容器，并为这个容器赋值。例如下面这一句话就是LHS查询：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>而RHS查询指的是找到某个变量容器中的值。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(a);</span><br></pre></td></tr></table></figure>
+<p>这句话中，由于<code>a</code>没有被赋予任何值，因此我们需要查找并取得a的值，才能将这个值传递给<code>console.log</code>。</p>
+<p>在JavaScript中，声明一个变量并对它赋值，一定是新建一个<strong>值</strong>并将这个值压入栈中，无论是原始类型赋值还是引用类型赋值。例如<code>var b = a</code>，一定会新建一条和<code>a</code>的值一样的值，并将这个值压入栈中。这个概念对于原始类型值，大家一定都没有争议。如果到了引用类型值上，还是一样的吗——</p>
+<p>答案是，对的。别忘了我们在前面所讲的，引用类型变量的数据会被保存在堆中，但同时会在栈中存放一份<em>对堆区存放的数据的引用</em>——你可以把它当做一个传送门。假设我们执行了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = &#123;&#125;;</span><br><span class="line"><span class="keyword">var</span> b = a; <span class="comment">// 语句1</span></span><br></pre></td></tr></table></figure>
+<p>实际上在语句1中，只是新建了一个和<code>a</code>一样的传送门，并把这个传送门存放到栈内。</p>
+<p>另外，在JavaScript中，所有的参数传递都是复制传递的——传送的一定是<strong>值</strong>，只不过<strong>这个值是指向堆中某个变量的地址</strong>。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="string">"num"</span>, b = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">key, obj</span>) </span>&#123;</span><br><span class="line">  obj[key] = <span class="number">1</span>;</span><br><span class="line">  a = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里传送的a和b分别是栈中存放a（数字）的地址和存放b（传送门）的地址</span></span><br><span class="line">foo(a, b);</span><br><span class="line"><span class="built_in">console</span>.log(a); <span class="comment">// 2</span></span><br><span class="line"><span class="built_in">console</span>.log(b); <span class="comment">// &#123;"num" : 1&#125;</span></span><br></pre></td></tr></table></figure>
+<p>关于这个问题，在知乎上有不少讨论。传送门：<a href="https://www.zhihu.com/question/51018162" target="_blank" rel="noopener">JavaScript中函数都是值传递吗？</a> <a href="https://www.zhihu.com/question/22473205/answer/21481258" target="_blank" rel="noopener">javascript 变量赋值与函数参数传递的方式是什么？</a></p>
+<h2>你在吗</h2>
+<p>JavaScript中，表示一个变量的值是空的时候，会有两种方式——null 和 undefined。</p>
+<p>虽然他们都表示空，但实际上还是有差别的——</p>
+<ul>
+<li>变量没有被赋一个确定的值的时候，她持有的值是<code>undefined</code></li>
+<li><code>null</code>表示“该值为空”</li>
+<li><code>undefined</code>表示“缺少一个值”，也就是说这里本该有值，但是还没有被定义。</li>
+</ul>
+<p>我们在将<code>null</code>和<code>undefined</code>转成数字的时候也可以看出他们的差别——</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Number</span>(<span class="literal">null</span>); <span class="comment">// 0</span></span><br><span class="line"><span class="built_in">Number</span>(<span class="literal">undefined</span>); <span class="comment">// NaN</span></span><br></pre></td></tr></table></figure>
+<p>这里还要多说一句，其实还有一个概念叫 “undeclared”（未声明）。变量在声明但没有赋值的时候为<code>undefined</code>；在作用域内没有声明过的变量，是undeclared的。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a;</span><br><span class="line">a; <span class="comment">// undefined</span></span><br><span class="line">b; <span class="comment">// ReferenceError: b is not defined 报错</span></span><br></pre></td></tr></table></figure>
+<p>这个例子可以很好的看出undefined和undeclared的区别，但！是！假如你用了 typeof 来处理：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a;</span><br><span class="line"><span class="keyword">typeof</span> a; <span class="comment">// "undefined"</span></span><br><span class="line"><span class="keyword">typeof</span> b; <span class="comment">// "undefined" 没有报错！</span></span><br></pre></td></tr></table></figure>
+<p>对于undefined和undeclared变量，typeof 都会返回&quot;undefined&quot;，并且没有报错，在这一点上我们要特别注意。</p>
+<h2>最后</h2>
+<p>变量、值和值的类型，在JavaScript中常常是一个大坑。实际运用时，一定一定一定要想办法规避掉这些坑的地方。同时，在面试的时候，他们也是常常被问到并且能把你坑到的一个点。一定要小心、谨慎、弄清楚他们的关系和原理。</p>
+<h3>参考</h3>
+<ul>
+<li>《你不知道的JavaScript上卷》第一部分第1章</li>
+<li>《你不知道的JavaScript中卷》第一部分第1章、第2章</li>
+<li><a href="http://www.ruanyifeng.com/blog/2014/03/undefined-vs-null" target="_blank" rel="noopener">undefined与null的区别 - 阮一峰</a></li>
+</ul>
+
+    </section>
+    
+    <section class="article-comments">
+        <div id="gitalk-container"></div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script>
+        var gitalk = new Gitalk({
+            clientID: '6911ddf87e5838ca7da0',
+            clientSecret: 'c8b78dec8b54f7009dbd6cce41d42d19eeb0f627',
+            id: (window.location.pathname + '').substring(0,50),
+            repo: 'blog',
+            owner: 'morenyang',
+            admin: 'morenyang',
+            distractionFreeMode: false
+        })
+    
+        gitalk.render('gitalk-container')
+    </script>
+</article>
+
+</main>
+<footer class="footer">
+    <p>Powered by Moren YANG&nbsp;&nbsp;-&nbsp;&nbsp;ackn. <a href="https://hexo.io"> Hexo </a></p>
+</footer>
+
+</body>
+</html>
